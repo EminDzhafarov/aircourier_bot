@@ -4,7 +4,7 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command
 from aiogram.fsm.storage.memory import MemoryStorage
 from keyboards.start import get_start_kb
-from handlers import courier, sender, admin
+from handlers import courier_handlers, sender_handlers, admin_handlers
 from filters.blacklist import BlacklistFilter
 from settings import TG_TOKEN
 
@@ -16,7 +16,7 @@ bot = Bot(token=TG_TOKEN, parse_mode="HTML")
 storage = MemoryStorage()
 # Диспетчер
 dp = Dispatcher()
-dp.include_routers(courier.router, sender.router)
+dp.include_routers(courier_handlers.router, sender_handlers.router)
 # База данных
 # loop = asyncio.get_event_loop()
 # db = Database(loop)
