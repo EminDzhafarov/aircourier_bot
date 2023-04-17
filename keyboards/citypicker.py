@@ -1,22 +1,28 @@
-#Клавиатура для выбора стран
-country_keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-country_keyboard.add(
-    KeyboardButton('Россия'),
-    KeyboardButton('Турция'),
-    KeyboardButton('Израиль'),
-    KeyboardButton('Армения'),
-    KeyboardButton('Сербия'),
-    KeyboardButton('Беларусь'),
-    KeyboardButton('Грузия'),
-    KeyboardButton('Казахстан'),
-    KeyboardButton('Кыргызстан'),
-    KeyboardButton('Азербайджан'),
-    KeyboardButton('ОАЭ'),
-    KeyboardButton('Черногория'),
-    KeyboardButton('Болгария'),
-    KeyboardButton('Греция'),
-    KeyboardButton('Кипр'),
-)
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.utils.keyboard import ReplyKeyboardBuilder
+
+def get_country_keyboard() -> ReplyKeyboardMarkup:
+    #Клавиатура для выбора стран
+    country_keyboard = ReplyKeyboardBuilder()
+    country_keyboard.add(
+        KeyboardButton(text='Россия'),
+        KeyboardButton(text='Турция'),
+        KeyboardButton(text='Израиль'),
+        KeyboardButton(text='Армения'),
+        KeyboardButton(text='Сербия'),
+        KeyboardButton(text='Беларусь'),
+        KeyboardButton(text='Грузия'),
+        KeyboardButton(text='Казахстан'),
+        KeyboardButton(text='Кыргызстан'),
+        KeyboardButton(text='Азербайджан'),
+        KeyboardButton(text='ОАЭ'),
+        KeyboardButton(text='Черногория'),
+        KeyboardButton(text='Болгария'),
+        KeyboardButton(text='Греция'),
+        KeyboardButton(text='Кипр'),
+    )
+    country_keyboard.adjust(3)
+    return country_keyboard.as_markup(resize_keyboard=True)
 
 #Словарь с городами для каждой страны
 cities_by_country = {
@@ -43,8 +49,9 @@ cities_by_country = {
 
 #Функция для создания клавиатуры с городами выбранной страны
 def city_keyboard(country):
-    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard = ReplyKeyboardBuilder()
     if country in cities_by_country:
         for city in cities_by_country[country]:
-            keyboard.add(city)
-    return keyboard
+            keyboard.add(KeyboardButton(text=city))
+    keyboard.adjust(3)
+    return keyboard.as_markup(resize_keyboard=True)
