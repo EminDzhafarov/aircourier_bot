@@ -3,9 +3,9 @@ from aiogram.types import Message
 
 
 class BlacklistFilter(BaseFilter):
-    def __init__(self, user_id):
-        self.user_id = user_id
+    def __init__(self):
+        pass
 
     async def __call__(self, message: Message) -> bool:
-        status = '''SQL запрос'''
-        return status == self.user_id
+        status = '''SQL запрос с user_id'''
+        return not status == message.from_user.id
