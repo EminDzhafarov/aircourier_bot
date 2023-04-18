@@ -1,11 +1,12 @@
 from aiogram import Router
 from aiogram.filters.text import Text
-from aiogram.types import Message, ReplyKeyboardRemove
+from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from states.courier_states import CourierStates
 from filters.blacklist import BlacklistFilter
 from utils.misc.validators import isvalid_name, isvalid_city
 from keyboards.citypicker import get_country_keyboard, city_keyboard, cities_by_country
+from keyboards.calendar.simple_calendar import SimpleCalendarCallback as simple_cal_callback, SimpleCalendar
 
 router = Router()
 
@@ -69,9 +70,20 @@ async def city_to(message: Message, state: FSMContext):
             await state.update_data(city_to=city)
             await message.answer('Отправителю будет важно знать когда вы планируете перелет.', \
                                  reply_markup=ReplyKeyboardRemove())
-            await message.answer('Выберите дату: ', reply_markup=ReplyKeyboardRemove) #Тут нужен календарь
+            await message.answer('Выберите дату: ', reply_markup=await SimpleCalendar().start_calendar())
             await state.set_state(CourierStates.waiting_for_date)
         else:
             await message.answer('Неправильный формат, используйте только русские или латинские буквы.')
     else:
         await message.answer('Города отправления и назначения должны отличаться.')
+
+
+@router.callback_query(CourierStates.waiting_for_date, simple_cal_callback.filter())
+async def process_simple_calendar(callback_query: CallbackQuery, callback_data: dict, state: FSMContext):
+    selected, date = await SimpleCalendar().process_selection(callback_query, callback_data)
+    if selected:
+        await callback_query.message.answer(
+            f'Вы выбрали {date.strftime("%d/%m/%Y")}',
+            reply_markup=ReplyKeyboardRemove()
+        )
+        await state.update_data(flight_date=date)

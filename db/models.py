@@ -35,8 +35,3 @@ class Stats_search(Base):
 
     def __repr__(self):
         return "".format(self.code)
-    """
-    user = user()
-    print(user)
-    >> <User:1>
-    """
