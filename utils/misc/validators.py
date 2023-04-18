@@ -5,3 +5,6 @@ def isvalid_name(name):
 
 def isvalid_city(city):
     return re.search("^[a-zA-Zа-яА-ЯёЁ -]+$", city) and len(city) <= 20
+
+def isvalid_info(info):
+    return re.search("^[a-zA-Zа-яА-ЯёЁ0-9.,!?\n -]+$", info) and len(info) <= 200
