@@ -17,6 +17,7 @@ import phonenumbers
 router = Router()
 
 @router.message(BlacklistFilter(), Text(text="✈️ Хочу доставить", ignore_case=True))
+@router.message(BlacklistFilter(), Text(text="Начать заново", ignore_case=True))
 async def courier_start(message: Message, state: FSMContext):
     await message.answer(
         'Вы выбрали роль курьера, нам нужно получить некоторую информацию о вас, чтобы передать '\
@@ -130,4 +131,24 @@ async def info(message: Message, state: FSMContext):
     else:
         await message.answer('Неправильный формат, используйте только русские или латинские буквы.')
 
-# @router.message(CourierStates.validate)
+@router.message(CourierStates.validate, Text(text="Все правильно", ignore_case=True))
+async def write_db(message: Message, state: FSMContext, session: AsyncSession):
+    data = await state.get_data()
+    await session.merge(
+        Courier(
+            user_id=message.from_user.id,
+            user_name = data['user_name'],
+            city=data['city_from'],
+            dest=data['city_to'],
+            flight_date=data['flight_date'],
+            phone=data['phone'],
+            extra=data['info'],
+            status=True
+        )
+    )
+    await session.commit()
+    await message.answer('Поздравляем! Мы получили ваши данные, они доступны для поиска. ' \
+                         '\n\nТеперь осталось только дождаться сообщения от отправителя и договориться о цене. ' \
+                         '\n\nСоздатель этого бота не несет ответственности за грузы и их содержимое, ' \
+                         'все действия вы выполняете на свой страх и риск, соблюдайте осторожность.')
+    await state.clear()
