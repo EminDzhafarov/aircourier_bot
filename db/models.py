@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, VARCHAR, DATE, Identity, BigInteger, TIMESTAMP, BOOLEAN
-from db.base import Base
+from .base import Base
 
 class Courier(Base):
     __tablename__ = "couriers"

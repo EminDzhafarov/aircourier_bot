@@ -5,9 +5,14 @@ from aiogram.filters.command import Command
 from aiogram.fsm.storage.memory import MemoryStorage
 from keyboards.start import get_start_kb
 from handlers import courier_handlers, sender_handlers, admin_handlers
+from middlewares import DbSessionMiddleware
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from filters.blacklist import BlacklistFilter
-from settings import TG_TOKEN
+from settings import TG_TOKEN, DB_URL
 
+# База данных
+engine = create_async_engine(url=DB_URL, echo=True)
+sessionmaker = async_sessionmaker(engine, expire_on_commit=False)
 # Включаем логирование, чтобы не пропустить важные сообщения
 logging.basicConfig(level=logging.INFO)
 # Объект бота
@@ -17,9 +22,7 @@ storage = MemoryStorage()
 # Диспетчер
 dp = Dispatcher()
 dp.include_routers(courier_handlers.router, sender_handlers.router)
-# База данных
-# loop = asyncio.get_event_loop()
-# db = Database(loop)
+dp.update.middleware(DbSessionMiddleware(session_pool=sessionmaker))
 
 # Хэндлер на команду /start
 @dp.message(BlacklistFilter(), Command("start"))

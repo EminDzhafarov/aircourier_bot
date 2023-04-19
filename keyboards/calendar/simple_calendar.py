@@ -65,7 +65,8 @@ class SimpleCalendar:
                     continue
                 calendar_row.append(InlineKeyboardButton(
                     text=str(day),
-                    callback_data=SimpleCalendarCallback(act=SimpleCalendarAction.DAY, year=year, month=month, day=day).pack()
+                    callback_data=SimpleCalendarCallback(act=SimpleCalendarAction.DAY,
+                                                         year=year, month=month, day=day).pack()
                 ))
             markup.append(calendar_row)
 
@@ -118,18 +119,22 @@ class SimpleCalendar:
         # user navigates to previous year, editing message with new calendar
         if data.act == SimpleCalendarAction.PREV_YEAR:
             prev_date = datetime(int(data.year) - 1, int(data.month), 1)
-            await query.message.edit_reply_markup(query.inline_message_id, await self.start_calendar(int(prev_date.year), int(prev_date.month)))
+            await query.message.edit_reply_markup(query.inline_message_id,
+                                                  await self.start_calendar(int(prev_date.year), int(prev_date.month)))
         # user navigates to next year, editing message with new calendar
         if data.act == SimpleCalendarAction.NEXT_YEAR:
             next_date = datetime(int(data.year) + 1, int(data.month), 1)
-            await query.message.edit_reply_markup(query.inline_message_id, await self.start_calendar(int(next_date.year), int(next_date.month)))
+            await query.message.edit_reply_markup(query.inline_message_id,
+                                                  await self.start_calendar(int(next_date.year), int(next_date.month)))
         # user navigates to previous month, editing message with new calendar
         if data.act == SimpleCalendarAction.PREV_MONTH:
             prev_date = temp_date - timedelta(days=1)
-            await query.message.edit_reply_markup(query.inline_message_id, await self.start_calendar(int(prev_date.year), int(prev_date.month)))
+            await query.message.edit_reply_markup(query.inline_message_id,
+                                                  await self.start_calendar(int(prev_date.year), int(prev_date.month)))
         # user navigates to next month, editing message with new calendar
         if data.act == SimpleCalendarAction.NEXT_MONTH:
             next_date = temp_date + timedelta(days=31)
-            await query.message.edit_reply_markup(query.inline_message_id, await self.start_calendar(int(next_date.year), int(next_date.month)))
+            await query.message.edit_reply_markup(query.inline_message_id,
+                                                  await self.start_calendar(int(next_date.year), int(next_date.month)))
         # at some point user clicks DAY button, returning date
         return return_data

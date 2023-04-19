@@ -2,9 +2,13 @@ from aiogram import Router
 from aiogram.filters.text import Text
 from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery
 from aiogram.fsm.context import FSMContext
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from db.models import Courier
 from states.courier_states import CourierStates
 from filters.blacklist import BlacklistFilter
 from utils.misc.validators import isvalid_name, isvalid_city, isvalid_info
+from keyboards.validate import get_valid_kb
 from keyboards.citypicker import get_country_keyboard, city_keyboard, cities_by_country
 from keyboards.calendar.simple_calendar import SimpleCalendarCallback as simple_cal_callback, SimpleCalendar
 
@@ -119,9 +123,11 @@ async def info(message: Message, state: FSMContext):
         data = await state.get_data()
         await message.answer(f"Вы ввели следующие данные:\nИмя: {data['user_name']}\nОткуда: {data['city_from']}\n" \
                              f"Куда: {data['city_to']}\nДата: {(data['flight_date']).strftime('%d.%m.%Y')}\nТелефон: {data['phone']}\n" \
-                             f"Примечание: {data['info']}")
-        await state.clear()
+                             f"Примечание: {data['info']}", reply_markup=get_valid_kb()) #Добавить клавиатуру с валидацией
+        await state.set_state(CourierStates.validate)
     elif len(info) > 200:
         await message.answer('Сообщение слишком длинное, сократите его.')
     else:
         await message.answer('Неправильный формат, используйте только русские или латинские буквы.')
+
+# @router.message(CourierStates.validate)
