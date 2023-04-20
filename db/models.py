@@ -1,10 +1,10 @@
-from sqlalchemy import Column, Integer, VARCHAR, DATE, Identity, BigInteger, TIMESTAMP, BOOLEAN
+from sqlalchemy import Column, Integer, VARCHAR, DATE, Identity, TIMESTAMP, BOOLEAN, BIGINT
 from .base import Base
 
 class Courier(Base):
     __tablename__ = "couriers"
     id = Column(Integer, Identity(start=1, cycle=True), primary_key=True)
-    user_id = Column(BigInteger, unique=False, nullable=False)
+    user_id = Column(BIGINT, unique=False, nullable=False)
     user_name = Column(VARCHAR(50), unique=False, nullable=False)
     city = Column(VARCHAR(20), unique=False, nullable=False)
     dest = Column(VARCHAR(20), unique=False, nullable=False)
@@ -16,18 +16,18 @@ class Courier(Base):
 class Blacklist(Base):
     __tablename__ = "blacklist"
     id = Column('id', Integer, Identity(start=1, cycle=True), primary_key=True)
-    user_id = Column('user_id', BigInteger, unique=False, nullable=False)
+    user_id = Column('user_id', BIGINT, unique=False, nullable=False)
 
 class Stats(Base):
     __tablename__ = "stats"
     id = Column('id', Integer, Identity(start=1, cycle=True), primary_key=True)
-    user_id = Column('user_id', BigInteger, unique=True, nullable=False)
+    user_id = Column('user_id', BIGINT, unique=True, nullable=False)
     timestamp = Column('timestamp', TIMESTAMP(timezone=False), nullable=False)
 
 class Stats_search(Base):
     __tablename__ = "stats_search"
     id = Column('id', Integer, Identity(start=1, cycle=True), primary_key=True)
-    user_id = Column('user_id', BigInteger, unique=False, nullable=False)
+    user_id = Column('user_id', BIGINT, unique=False, nullable=False)
     city_from = Column(VARCHAR(20), unique=False, nullable=False)
     city_to = Column(VARCHAR(20), unique=False, nullable=False)
     timestamp = Column('timestamp', TIMESTAMP(timezone=False), nullable=False)

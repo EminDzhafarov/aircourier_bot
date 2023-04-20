@@ -1,39 +1,29 @@
 import asyncio
 import logging
-from aiogram import Bot, Dispatcher, types
-from aiogram.filters.command import Command
+from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
-from keyboards.start import get_start_kb
-from handlers import courier_handlers, sender_handlers, admin_handlers
+from handlers import courier_handlers, sender_handlers, admin_handlers, start_handlers
 from middlewares import DbSessionMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from filters.blacklist import BlacklistFilter
 from settings import TG_TOKEN, DB_URL
 
-# База данных
-engine = create_async_engine(url=DB_URL, echo=True)
-sessionmaker = async_sessionmaker(engine, expire_on_commit=False)
-# Включаем логирование, чтобы не пропустить важные сообщения
-logging.basicConfig(level=logging.INFO)
-# Объект бота
-bot = Bot(token=TG_TOKEN, parse_mode="HTML")
-# Память
-storage = MemoryStorage()
-# Диспетчер
-dp = Dispatcher()
-dp.include_routers(courier_handlers.router, sender_handlers.router)
-dp.update.middleware(DbSessionMiddleware(session_pool=sessionmaker))
-
-# Хэндлер на команду /start
-@dp.message(BlacklistFilter(), Command("start"))
-async def cmd_start(message: types.Message) -> None:
-        await message.answer("Привет! Этот бот поможет найти попутчиков для доставки посылок самолетом.\n\n"\
-                "<i>Отправляя сообщение, вы соглашаетесь на обработку персональных данных.</i>\n\n"\
-                "Для начала выберите"\
-                             " что вы хотите сделать.", reply_markup=get_start_kb())
-
-# Запуск процесса поллинга новых апдейтов
 async def main():
+    # База данных
+    engine = create_async_engine(url=DB_URL, echo=True)
+    sessionmaker = async_sessionmaker(engine, expire_on_commit=False)
+    # Включаем логирование, чтобы не пропустить важные сообщения
+    logging.basicConfig(level=logging.INFO)
+    # Объект бота
+    bot = Bot(token=TG_TOKEN, parse_mode="HTML")
+    # Память
+    storage = MemoryStorage()
+    # Диспетчер
+    dp = Dispatcher()
+    dp.include_routers(start_handlers.router, courier_handlers.router, sender_handlers.router)
+    dp.update.middleware(DbSessionMiddleware(session_pool=sessionmaker))
+
+    # Запуск процесса поллинга новых апдейтов
+
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
