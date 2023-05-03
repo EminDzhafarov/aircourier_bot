@@ -138,11 +138,11 @@ async def write_db(message: Message, state: FSMContext, session: AsyncSession):
         Courier(
             user_id=message.from_user.id,
             user_name = data['user_name'],
-            city=data['city_from'],
-            dest=data['city_to'],
+            city_from=data['city_from'],
+            city_to=data['city_to'],
             flight_date=data['flight_date'],
             phone=data['phone'],
-            extra=data['info'],
+            info=data['info'],
             status=True
         )
     )

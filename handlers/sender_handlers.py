@@ -60,9 +60,10 @@ async def city_to(message: Message, state: FSMContext, session: AsyncSession):
             await state.update_data(city_to=city)
             data = await state.get_data()
             today = datetime.today()
-            query = (await session.execute(select(Courier).where(Courier.city == data['city_from']).where(Courier.dest == data['city_to']) \
+            query = (await session.execute(select(Courier).where(Courier.city_from == data['city_from']).where(Courier.city_to == data['city_to']) \
                     .where(Courier.flight_date >= today).where(Courier.status == True) \
                     .order_by(Courier.flight_date))).all()
+            print(query)
             if query:
                 await message.answer('Вот что мне удалось найти:', \
                                      reply_markup=ReplyKeyboardRemove())
