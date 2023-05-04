@@ -32,7 +32,7 @@ cities_by_country = {
                'Челябинск', 'Петрозаводск', 'Оренбург', 'Кемерово', 'Братск', 'Астрахань', 'Саратов', 'Тюмень'],
     'Турция': ['Анталья', 'Стамбул', 'Аланья', 'Измир', 'Анкара', 'Даламан', 'Ризе', 'Адана', 'Мерсин', 'Трабзон',\
                'Кайсери', 'Самсун'],
-    'Сербия': ['Белград'],
+    'Сербия': ['Белград', 'Нови-Сад'],
     'Израиль': ['Тель-Авив', 'Иерусалим', 'Беэр-Шева', 'Хайфа'],
     'Армения': ['Ереван', 'Гюмри'],
     'Грузия': ['Тбилиси', 'Батуми'],
@@ -53,5 +53,6 @@ def city_keyboard(country):
     if country in cities_by_country:
         for city in cities_by_country[country]:
             keyboard.add(KeyboardButton(text=city))
+    keyboard.add(KeyboardButton(text='Назад'))
     keyboard.adjust(3)
     return keyboard.as_markup(resize_keyboard=True)

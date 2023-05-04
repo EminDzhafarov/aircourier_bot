@@ -75,6 +75,6 @@ async def city_to(message: Message, state: FSMContext, session: AsyncSession):
                                          f'Примечание: {courier.info}', \
                                          reply_markup=get_to_search_kb())
             else:
-                await message.answer('Ничего не найдено :(')
+                await message.answer('Ничего не найдено :(', reply_markup=get_to_search_kb())
             await session.commit()
         await state.clear()
