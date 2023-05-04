@@ -11,15 +11,18 @@ from sqlalchemy import select, update
 from db.models import Courier
 from keyboards.start import get_to_start_kb
 from keyboards.inline import del_flight, DelFlight
+from datetime import datetime
 
 router = Router()
 
 @router.message(Text(text="📋 Мои перелеты", ignore_case=True), BlacklistFilter())
 async def my_flights(message: Message, state: FSMContext, session: AsyncSession):
     await state.set_state(FlightsStates.flights)
+    today = datetime.today()
     user_id = message.from_user.id
     query = (await session.scalars(select(Courier)
                                    .where(Courier.user_id == user_id)
+                                   .where(Courier.flight_date >= today)
                                    .where(Courier.status == True))).all()
     await message.answer('Вот что мне удалось найти:', reply_markup=get_to_start_kb())
     for flight in query:
