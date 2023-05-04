@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, VARCHAR, DATE, Identity, TIMESTAMP, BOOLEAN, BIGINT
 from .base import Base
 
+# Список курьеров
 class Courier(Base):
     __tablename__ = "couriers"
     id = Column(Integer, nullable=False, unique=True, primary_key=True)
@@ -13,15 +14,18 @@ class Courier(Base):
     info = Column(VARCHAR(200), unique=False, nullable=False)
     status = Column(BOOLEAN, nullable=False)
 
+# Черный список
 class Blacklist(Base):
     __tablename__ = "blacklist"
     user_id = Column(BIGINT, unique=True, nullable=False, primary_key=True)
 
+# Уникальные пользователи
 class Stats(Base):
     __tablename__ = "stats"
     user_id = Column(BIGINT, unique=True, nullable=False, primary_key=True)
     timestamp = Column(TIMESTAMP(timezone=False), nullable=False)
 
+# История поиска
 class Stats_search(Base):
     __tablename__ = "stats_search"
     user_id = Column(BIGINT, unique=False, nullable=False, primary_key=True)
