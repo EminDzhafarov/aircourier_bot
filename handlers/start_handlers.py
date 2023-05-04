@@ -3,7 +3,6 @@ from aiogram.filters.command import Command
 from aiogram.filters.text import Text
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
-import states.courier_states
 from keyboards.start import get_start_kb
 from filters.blacklist import BlacklistFilter
 from filters.flights import FlightsFilter

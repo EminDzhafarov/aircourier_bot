@@ -8,9 +8,7 @@ def get_start_kb(flights) -> ReplyKeyboardMarkup:
     kb.button(text="📦 Хочу отправить")
     if flights == True:
         kb.button(text="📋 Мои перелеты")
-        kb.adjust(3)
-    else:
-        kb.adjust(2)
+    kb.adjust(1)
     return kb.as_markup(resize_keyboard=True)
 
 # Клавиатура для возврата на старт

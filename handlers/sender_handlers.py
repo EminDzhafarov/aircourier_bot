@@ -10,6 +10,7 @@ from states.sender_states import SenderStates
 from utils.misc.validators import isvalid_name, isvalid_city, isvalid_info
 from keyboards.citypicker import get_country_keyboard, city_keyboard, cities_by_country
 from keyboards.start import get_to_search_kb
+from keyboards.inline import send_msg
 from datetime import datetime
 
 router = Router()
@@ -70,13 +71,13 @@ async def city_to(message: Message, state: FSMContext, session: AsyncSession):
                                                .where(Courier.flight_date >= today).where(Courier.status == True)
                                                .order_by(Courier.flight_date))).all()
                 if query:
-                    await message.answer('Вот что мне удалось найти:')
+                    await message.answer('Вот что мне удалось найти:', reply_markup=get_to_search_kb())
                     for courier in query:
                         await message.answer(f'<b>Дата: {courier.flight_date.strftime("%d.%m.%Y")}</b>\n'
                                              f'Имя: <a href="tg://user?id={courier.user_id}">{courier.user_name}</a>\n'
                                              f'Контакт: {courier.phone}\n'
                                              f'Примечание: {courier.info}',
-                                             reply_markup=get_to_search_kb())
+                                             reply_markup=send_msg(courier.phone))
                 else:
                     await message.answer('Ничего не найдено :(', reply_markup=get_to_search_kb())
                 await session.commit()

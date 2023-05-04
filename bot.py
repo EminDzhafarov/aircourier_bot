@@ -2,7 +2,7 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
-from handlers import courier_handlers, sender_handlers, admin_handlers, start_handlers
+from handlers import courier_handlers, sender_handlers, admin_handlers, start_handlers, flights_handlers
 from middlewares import DbSessionMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from settings import TG_TOKEN, DB_URL
@@ -19,7 +19,7 @@ async def main():
     storage = MemoryStorage()
     # Диспетчер
     dp = Dispatcher()
-    dp.include_routers(start_handlers.router, courier_handlers.router, sender_handlers.router)
+    dp.include_routers(start_handlers.router, courier_handlers.router, sender_handlers.router, flights_handlers.router)
     dp.update.middleware(DbSessionMiddleware(session_pool=sessionmaker))
 
     # Запуск процесса поллинга новых апдейтов
