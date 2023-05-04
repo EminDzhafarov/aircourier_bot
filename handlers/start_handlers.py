@@ -8,13 +8,13 @@ from filters.blacklist import BlacklistFilter
 router = Router()
 
 # Хэндлер на команду /start
-@router.message(BlacklistFilter(), Command("start"))
+@router.message(Command("start"), BlacklistFilter())
 async def cmd_start(message: Message) -> None:
         await message.answer("Привет! Этот бот поможет найти попутчиков для доставки посылок самолетом.\n\n"\
                 "<i>Отправляя сообщение, вы соглашаетесь на обработку персональных данных.</i>\n\n"\
                 "Для начала выберите"\
                              " что вы хотите сделать.", reply_markup=get_start_kb())
 
-@router.message(BlacklistFilter(), Text(text="В начало", ignore_case=True))
+@router.message(Text(text="В начало", ignore_case=True), BlacklistFilter())
 async def begining(message: Message) -> None:
         await message.answer("Выберите что вы хотите сделать.", reply_markup=get_start_kb())

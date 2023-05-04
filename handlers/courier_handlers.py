@@ -9,6 +9,7 @@ from states.courier_states import CourierStates
 from filters.blacklist import BlacklistFilter
 from utils.misc.validators import isvalid_name, isvalid_city, isvalid_info
 from keyboards.validate import get_valid_kb
+from keyboards.start import get_to_start_kb
 from keyboards.citypicker import get_country_keyboard, city_keyboard, cities_by_country
 from keyboards.calendar.simple_calendar import SimpleCalendarCallback as simple_cal_callback, SimpleCalendar
 
@@ -16,8 +17,8 @@ import phonenumbers
 
 router = Router()
 
-@router.message(BlacklistFilter(), Text(text="✈️ Хочу доставить", ignore_case=True))
-@router.message(BlacklistFilter(), Text(text="Начать заново", ignore_case=True))
+@router.message(Text(text="✈️ Хочу доставить", ignore_case=True), BlacklistFilter())
+@router.message(Text(text="Начать заново", ignore_case=True), BlacklistFilter())
 async def courier_start(message: Message, state: FSMContext):
     await message.answer(
         'Вы выбрали роль курьера, нам нужно получить некоторую информацию о вас, чтобы передать '\
@@ -150,5 +151,6 @@ async def write_db(message: Message, state: FSMContext, session: AsyncSession):
     await message.answer('Поздравляем! Мы получили ваши данные, они доступны для поиска. ' \
                          '\n\nТеперь осталось только дождаться сообщения от отправителя и договориться о цене. ' \
                          '\n\nСоздатель этого бота не несет ответственности за грузы и их содержимое, ' \
-                         'все действия вы выполняете на свой страх и риск, соблюдайте осторожность.')
+                         'все действия вы выполняете на свой страх и риск, соблюдайте осторожность.',
+                         reply_markup=get_to_start_kb())
     await state.clear()

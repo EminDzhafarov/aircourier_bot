@@ -6,14 +6,17 @@ from aiogram.fsm.context import FSMContext
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.models import Courier, Stats, Stats_search
+from filters.blacklist import BlacklistFilter
 from states.sender_states import SenderStates
 from utils.misc.validators import isvalid_name, isvalid_city, isvalid_info
 from keyboards.citypicker import get_country_keyboard, city_keyboard, cities_by_country
+from keyboards.start import get_to_search_kb
 from datetime import datetime
 
 router = Router()
 
-@router.message(Text(text="📦 Хочу отправить", ignore_case=True))
+@router.message(Text(text="Новый поиск", ignore_case=True), BlacklistFilter())
+@router.message(Text(text="📦 Хочу отправить", ignore_case=True), BlacklistFilter())
 async def answer_yes(message: Message, state: FSMContext):
     await message.answer(
         "Выберите откуда вы хотите отправить посылку.",
@@ -60,19 +63,17 @@ async def city_to(message: Message, state: FSMContext, session: AsyncSession):
             await state.update_data(city_to=city)
             data = await state.get_data()
             today = datetime.today()
-            query = (await session.execute(select(Courier).where(Courier.city_from == data['city_from']).where(Courier.city_to == data['city_to']) \
+            query = (await session.scalars(select(Courier).where(Courier.city_from == data['city_from']).where(Courier.city_to == data['city_to']) \
                     .where(Courier.flight_date >= today).where(Courier.status == True) \
                     .order_by(Courier.flight_date))).all()
-            print(query)
             if query:
-                await message.answer('Вот что мне удалось найти:', \
-                                     reply_markup=ReplyKeyboardRemove())
+                await message.answer('Вот что мне удалось найти:')
                 for courier in query:
                     await message.answer(f'<b>Дата: {courier.flight_date.strftime("%d.%m.%Y")}</b>\n'
                                          f'Имя: <a href="tg://user?id={courier.user_id}">{courier.user_name}</a>\n' \
                                          f'Контакт: {courier.phone}\n' \
-                                         f'Примечание: {courier.extra}', \
-                                         parse_mode='HTML')
+                                         f'Примечание: {courier.info}', \
+                                         reply_markup=get_to_search_kb())
             else:
                 await message.answer('Ничего не найдено :(')
             await session.commit()
