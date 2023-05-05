@@ -86,6 +86,9 @@ async def city_to(message: Message, state: FSMContext, session: AsyncSession):
                                              f'<b>Контакт:</b> {courier.phone}\n'
                                              f'<b>Примечание:</b> {courier.info}',
                                              reply_markup=send_msg(courier.phone))
+                    await message.answer("Обратите внимание: некоторые курьеры запрещают писать себе настройками "
+                                         "приватности, но вы можете добавить их в контакты по номеру телефона "
+                                         "или позвонить.")
                 else:
                     await message.answer('Ничего не найдено :(', reply_markup=get_to_search_kb())
                 await session.commit()

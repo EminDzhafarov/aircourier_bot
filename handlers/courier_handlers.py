@@ -12,7 +12,7 @@ from filters.blacklist import BlacklistFilter
 from utils.misc.validators import isvalid_name, isvalid_city, isvalid_info
 from keyboards.validate import get_valid_kb
 from keyboards.start import get_to_start_kb
-from keyboards.inline import send_msg
+from keyboards.inline import to_bot
 from keyboards.citypicker import get_country_keyboard, city_keyboard, cities_by_country
 from keyboards.calendar.simple_calendar import SimpleCalendarCallback as simple_cal_callback, SimpleCalendar
 
@@ -168,9 +168,9 @@ async def write_db(message: Message, state: FSMContext, session: AsyncSession):
                          '\n\nТакже будем рады видеть вас в нашем чате @aircourier_chat !',
                          reply_markup=get_to_start_kb())
 
-    text = f"✈ ✈ ✈ ✈ ✈ ✈ ✈ ✈\n<b>Когда:</b> {data['flight_date'].strftime('%d.%m.%Y')}\n"\
-           f"<b>Откуда:</b> {data['city_from']}\n"\
-           f"<b>Куда:</b> {data['city_to']}\n"\
+    text = f'<b><a href="tg://user?id={message.from_user.id}">{data["user_name"]}</a></b> '\
+           f"летит {data['flight_date'].strftime('%d.%m.%Y')} по маршруту:\n"\
+           f"{data['city_from']} ✈ {data['city_to']}\n"\
            f"<b>Примечание:</b> {data['info']}"
-    await bot.send_message(chat_id=settings.AIR_CHAT_ID, text=text, reply_markup=send_msg(data['phone']))
+    await bot.send_message(chat_id=settings.AIR_CHAT_ID, text=text, reply_markup=to_bot())
     await state.clear()

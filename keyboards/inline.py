@@ -1,6 +1,14 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder,InlineKeyboardButton
 from aiogram.filters.callback_data import CallbackData
 
+def to_bot():
+    builder = InlineKeyboardBuilder()
+    builder.row(InlineKeyboardButton(
+        text='Перейти в бота!',
+        url='https://t.me/aircourier_bot')
+    )
+    return builder.as_markup()
+
 def send_msg(phone):
     builder = InlineKeyboardBuilder()
     builder.row(InlineKeyboardButton(
