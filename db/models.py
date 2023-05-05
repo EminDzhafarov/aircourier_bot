@@ -33,3 +33,7 @@ class Stats_search(Base):
     city_to = Column(VARCHAR(20), unique=False, nullable=False)
     timestamp = Column(TIMESTAMP(timezone=False), nullable=False)
 
+# Администраторы
+class Admins(Base):
+    __tablename__ = "admins"
+    user_id = Column(BIGINT, unique=True, nullable=False, primary_key=True)

@@ -13,10 +13,22 @@ class DelFlight(CallbackData, prefix="my"):
     action: str
     flight_id: int
 
+class DelBlacklist(CallbackData, prefix="user"):
+    action: str
+    user_id: int
+
 def del_flight(flight_id):
     builder = InlineKeyboardBuilder()
     builder.row(InlineKeyboardButton(
         text='Удалить',
         callback_data=DelFlight(action="delete", flight_id=flight_id).pack(),
+    ))
+    return builder.as_markup()
+
+def del_blacklist(user_id):
+    builder = InlineKeyboardBuilder()
+    builder.row(InlineKeyboardButton(
+        text='Удалить',
+        callback_data=DelBlacklist(action="delete", user_id=user_id).pack(),
     ))
     return builder.as_markup()

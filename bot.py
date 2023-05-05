@@ -19,7 +19,11 @@ async def main():
     storage = MemoryStorage()
     # Диспетчер
     dp = Dispatcher()
-    dp.include_routers(start_handlers.router, courier_handlers.router, sender_handlers.router, flights_handlers.router)
+    dp.include_routers(start_handlers.router,
+                       courier_handlers.router,
+                       sender_handlers.router,
+                       flights_handlers.router,
+                       admin_handlers.router)
     dp.update.middleware(DbSessionMiddleware(session_pool=sessionmaker))
 
     # Запуск процесса поллинга новых апдейтов
