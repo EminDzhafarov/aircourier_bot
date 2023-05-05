@@ -1,15 +1,18 @@
+from bot import bot
 from aiogram import Router
 from aiogram.filters.text import Text
 from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from sqlalchemy import select, insert
 from sqlalchemy.ext.asyncio import AsyncSession
+import settings
 from db.models import Courier
 from states.courier_states import CourierStates
 from filters.blacklist import BlacklistFilter
 from utils.misc.validators import isvalid_name, isvalid_city, isvalid_info
 from keyboards.validate import get_valid_kb
 from keyboards.start import get_to_start_kb
+from keyboards.inline import send_msg
 from keyboards.citypicker import get_country_keyboard, city_keyboard, cities_by_country
 from keyboards.calendar.simple_calendar import SimpleCalendarCallback as simple_cal_callback, SimpleCalendar
 
@@ -163,4 +166,10 @@ async def write_db(message: Message, state: FSMContext, session: AsyncSession):
                          '\n\nСоздатель этого бота не несет ответственности за грузы и их содержимое, ' \
                          'все действия вы выполняете на свой страх и риск, соблюдайте осторожность.',
                          reply_markup=get_to_start_kb())
+
+    text = f"✈ ✈ ✈ ✈ ✈ ✈ ✈ ✈\n<b>Когда:</b> {data['flight_date'].strftime('%d.%m.%Y')}\n"\
+           f"<b>Откуда:</b> {data['city_from']}\n"\
+           f"<b>Куда:</b> {data['city_to']}\n"\
+           f"<b>Примечание:</b> {data['info']}"
+    await bot.send_message(chat_id=-1001964061879, text=text, reply_markup=send_msg(data['phone']))
     await state.clear()

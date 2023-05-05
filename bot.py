@@ -7,14 +7,15 @@ from middlewares import DbSessionMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from settings import TG_TOKEN, DB_URL
 
+# Объект бота
+bot = Bot(token=TG_TOKEN, parse_mode="HTML")
+
 async def main():
     # База данных
     engine = create_async_engine(url=DB_URL, echo=True)
     sessionmaker = async_sessionmaker(engine, expire_on_commit=False)
     # Включаем логирование, чтобы не пропустить важные сообщения
     logging.basicConfig(level=logging.INFO)
-    # Объект бота
-    bot = Bot(token=TG_TOKEN, parse_mode="HTML")
     # Память
     storage = MemoryStorage()
     # Диспетчер
