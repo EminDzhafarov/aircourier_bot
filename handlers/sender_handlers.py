@@ -2,9 +2,9 @@ from aiogram import Router
 from aiogram.filters.text import Text
 from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery
 from aiogram.fsm.context import FSMContext
-from sqlalchemy import select
+from sqlalchemy import select, insert
 from sqlalchemy.ext.asyncio import AsyncSession
-from db.models import Courier, Stats, Stats_search
+from db.models import Courier, Stats_search
 from filters.blacklist import BlacklistFilter
 from states.sender_states import SenderStates
 from utils.misc.validators import isvalid_name, isvalid_city, isvalid_info
@@ -65,6 +65,12 @@ async def city_to(message: Message, state: FSMContext, session: AsyncSession):
                 await state.update_data(city_to=city)
                 data = await state.get_data()
                 today = datetime.today()
+                await session.execute(insert(
+                    Stats_search).values(
+                        user_id=message.from_user.id,
+                        city_from=data['city_from'],
+                        city_to=data['city_to'],
+                        timestamp=today))
                 query = (await session.scalars(select(Courier)
                                                .where(Courier.city_from == data['city_from'])
                                                .where(Courier.city_to == data['city_to'])
