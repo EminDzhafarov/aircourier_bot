@@ -37,7 +37,8 @@ async def city_from(message: Message, state: FSMContext):
     if city != "Назад":
         if isvalid_city(city):
             await state.update_data(city_from=city)
-            await message.answer('Выберите в какую страну хотите отправить посылку.', reply_markup=get_country_keyboard())
+            await message.answer('Выберите в какую страну хотите отправить посылку.',
+                                 reply_markup=get_country_keyboard())
             await state.set_state(SenderStates.waiting_for_country_to)
         else:
             await message.answer('Неправильный формат, используйте только русские или латинские буквы.')
@@ -80,9 +81,10 @@ async def city_to(message: Message, state: FSMContext, session: AsyncSession):
                     await message.answer('Вот что мне удалось найти:', reply_markup=get_to_search_kb())
                     for courier in query:
                         await message.answer(f'<b>Дата: {courier.flight_date.strftime("%d.%m.%Y")}</b>\n'
-                                             f'Имя: <a href="tg://user?id={courier.user_id}">{courier.user_name}</a>\n'
-                                             f'Контакт: {courier.phone}\n'
-                                             f'Примечание: {courier.info}',
+                                             f'<b>Имя:</b> <a href="tg://user?id={courier.user_id}">'
+                                             f'{courier.user_name}</a>\n'
+                                             f'<b>Контакт:</b> {courier.phone}\n'
+                                             f'<b>Примечание:</b> {courier.info}',
                                              reply_markup=send_msg(courier.phone))
                 else:
                     await message.answer('Ничего не найдено :(', reply_markup=get_to_search_kb())
