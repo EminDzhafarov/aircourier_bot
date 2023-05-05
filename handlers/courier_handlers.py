@@ -164,12 +164,13 @@ async def write_db(message: Message, state: FSMContext, session: AsyncSession):
     await message.answer('Поздравляем! Мы получили ваши данные, они доступны для поиска. ' \
                          '\n\nТеперь осталось только дождаться сообщения от отправителя и договориться о цене. ' \
                          '\n\nСоздатель этого бота не несет ответственности за грузы и их содержимое, ' \
-                         'все действия вы выполняете на свой страх и риск, соблюдайте осторожность.',
+                         'все действия вы выполняете на свой страх и риск, соблюдайте осторожность.'
+                         '\n\nТакже будем рады видеть вас в нашем чате @aircourier_chat !',
                          reply_markup=get_to_start_kb())
 
     text = f"✈ ✈ ✈ ✈ ✈ ✈ ✈ ✈\n<b>Когда:</b> {data['flight_date'].strftime('%d.%m.%Y')}\n"\
            f"<b>Откуда:</b> {data['city_from']}\n"\
            f"<b>Куда:</b> {data['city_to']}\n"\
            f"<b>Примечание:</b> {data['info']}"
-    await bot.send_message(chat_id=-1001964061879, text=text, reply_markup=send_msg(data['phone']))
+    await bot.send_message(chat_id=settings.AIR_CHAT_ID, text=text, reply_markup=send_msg(data['phone']))
     await state.clear()
