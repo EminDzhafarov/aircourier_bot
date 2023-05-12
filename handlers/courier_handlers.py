@@ -5,7 +5,6 @@ from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from sqlalchemy import select, insert
 from sqlalchemy.ext.asyncio import AsyncSession
-import settings
 from db.models import Courier
 from states.courier_states import CourierStates
 from filters.blacklist import BlacklistFilter
@@ -15,7 +14,9 @@ from keyboards.start import get_to_start_kb
 from keyboards.inline import to_bot
 from keyboards.citypicker import get_country_keyboard, city_keyboard, cities_by_country
 from keyboards.calendar.simple_calendar import SimpleCalendarCallback as simple_cal_callback, SimpleCalendar
-
+from dateutil import parser
+import settings
+import json
 import phonenumbers
 
 router = Router()
@@ -107,7 +108,7 @@ async def process_simple_calendar(callback_query: CallbackQuery, callback_data: 
             f'Вы выбрали {date.strftime("%d/%m/%Y")}',
             reply_markup=ReplyKeyboardRemove()
         )
-        await state.update_data(flight_date=date)
+        await state.update_data(flight_date=json.dumps(date, default=str))
         await state.set_state(CourierStates.waiting_for_phone)
         await callback_query.message.answer('Для надежности отправителю лучше знать ваш номер телефона. Не забудьте '
                                             'указать код страны. Пример: +79997654321.')
@@ -136,7 +137,7 @@ async def info(message: Message, state: FSMContext):
         await state.update_data(info=message.text.strip())
         data = await state.get_data()
         await message.answer(f"Вы ввели следующие данные:\nИмя: {data['user_name']}\nОткуда: {data['city_from']}\n"
-                             f"Куда: {data['city_to']}\nДата: {(data['flight_date']).strftime('%d.%m.%Y')}\n"
+                             f"Куда: {data['city_to']}\nДата: {(parser.parse(data['flight_date'])).strftime('%d.%m.%Y')}\n"
                              f"Телефон: {data['phone']}\n"
                              f"Примечание: {data['info']}", reply_markup=get_valid_kb())
         await state.set_state(CourierStates.validate)
