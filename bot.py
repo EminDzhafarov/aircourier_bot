@@ -1,11 +1,12 @@
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
-from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.storage.redis import RedisStorage, DefaultKeyBuilder
 from handlers import courier_handlers, sender_handlers, admin_handlers, start_handlers, flights_handlers
 from middlewares import DbSessionMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from settings import TG_TOKEN, DB_URL
+from settings import TG_TOKEN, DB_URL, REDIS_URL
+from aioredis import Redis
 
 # Объект бота
 bot = Bot(token=TG_TOKEN, parse_mode="HTML")
@@ -16,10 +17,12 @@ async def main():
     sessionmaker = async_sessionmaker(engine, expire_on_commit=False)
     # Включаем логирование, чтобы не пропустить важные сообщения
     logging.basicConfig(level=logging.INFO)
+    # Redis
+    redis = Redis()
     # Память
-    storage = MemoryStorage()
+    storage = RedisStorage(redis=redis ,key_builder=DefaultKeyBuilder(with_bot_id=True)).from_url(REDIS_URL)
     # Диспетчер
-    dp = Dispatcher()
+    dp = Dispatcher(storage=storage)
     dp.include_routers(start_handlers.router,
                        courier_handlers.router,
                        sender_handlers.router,
