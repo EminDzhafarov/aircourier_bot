@@ -14,9 +14,8 @@ from keyboards.start import get_to_start_kb
 from keyboards.inline import to_bot
 from keyboards.citypicker import get_country_keyboard, city_keyboard, cities_by_country
 from keyboards.calendar.simple_calendar import SimpleCalendarCallback as simple_cal_callback, SimpleCalendar
-from dateutil import parser
+from dateutil.parser import isoparse
 import settings
-import json
 import phonenumbers
 
 router = Router()
@@ -108,7 +107,7 @@ async def process_simple_calendar(callback_query: CallbackQuery, callback_data: 
             f'Вы выбрали {date.strftime("%d/%m/%Y")}',
             reply_markup=ReplyKeyboardRemove()
         )
-        await state.update_data(flight_date=json.dumps(date, default=str))
+        await state.update_data(flight_date=str(date))
         await state.set_state(CourierStates.waiting_for_phone)
         await callback_query.message.answer('Для надежности отправителю лучше знать ваш номер телефона. Не забудьте '
                                             'указать код страны. Пример: +79997654321.')
@@ -137,7 +136,7 @@ async def info(message: Message, state: FSMContext):
         await state.update_data(info=message.text.strip())
         data = await state.get_data()
         await message.answer(f"Вы ввели следующие данные:\nИмя: {data['user_name']}\nОткуда: {data['city_from']}\n"
-                             f"Куда: {data['city_to']}\nДата: {(parser.parse(data['flight_date'])).strftime('%d.%m.%Y')}\n"
+                             f"Куда: {data['city_to']}\nДата: {(isoparse(data['flight_date'])).strftime('%d.%m.%Y')}\n"
                              f"Телефон: {data['phone']}\n"
                              f"Примечание: {data['info']}", reply_markup=get_valid_kb())
         await state.set_state(CourierStates.validate)
@@ -155,7 +154,7 @@ async def write_db(message: Message, state: FSMContext, session: AsyncSession):
             user_name = data['user_name'],
             city_from=data['city_from'],
             city_to=data['city_to'],
-            flight_date=data['flight_date'],
+            flight_date=isoparse(data['flight_date']),
             phone=data['phone'],
             info=data['info'],
             status=True
@@ -170,7 +169,7 @@ async def write_db(message: Message, state: FSMContext, session: AsyncSession):
                          reply_markup=get_to_start_kb())
 
     text = f'<b><a href="tg://user?id={message.from_user.id}">{data["user_name"]}</a></b> '\
-           f"летит {data['flight_date'].strftime('%d.%m.%Y')} по маршруту:\n"\
+           f"летит {isoparse(data['flight_date']).strftime('%d.%m.%Y')} по маршруту:\n"\
            f"{data['city_from']} ✈ {data['city_to']}\n"\
            f"<b>Примечание:</b> {data['info']}"
     await bot.send_message(chat_id=settings.AIR_CHAT_ID, text=text, reply_markup=to_bot())
