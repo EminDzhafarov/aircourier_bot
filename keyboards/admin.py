@@ -5,7 +5,8 @@ def get_admin_start() -> ReplyKeyboardMarkup:
     kb = ReplyKeyboardBuilder()
     kb.button(text="Добавить")
     kb.button(text="Удалить")
-    kb.adjust(2)
+    kb.button(text="Добавить рейс")
+    kb.adjust(3)
     return kb.as_markup(resize_keyboard=True)
 
 def get_admin_add() -> ReplyKeyboardMarkup:

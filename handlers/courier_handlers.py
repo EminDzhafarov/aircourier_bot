@@ -1,5 +1,4 @@
-from bot import bot
-from aiogram import Router
+from aiogram import Router, Bot
 from aiogram.filters.text import Text
 from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery
 from aiogram.fsm.context import FSMContext
@@ -146,7 +145,7 @@ async def info(message: Message, state: FSMContext):
         await message.answer('Неправильный формат, используйте только русские или латинские буквы.')
 
 @router.message(CourierStates.validate, Text(text="Все правильно", ignore_case=True))
-async def write_db(message: Message, state: FSMContext, session: AsyncSession):
+async def write_db(message: Message, state: FSMContext, session: AsyncSession, bot: Bot):
     data = await state.get_data()
     await session.execute(insert(
         Courier).values(
