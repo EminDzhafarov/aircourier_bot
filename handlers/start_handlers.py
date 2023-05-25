@@ -52,7 +52,8 @@ async def cmd_start(
                                                        .order_by(Courier.flight_date))).all()
                         if query:
                                 for courier in query:
-                                        await message.answer(f'<b>Дата: {courier.flight_date.strftime("%d.%m.%Y")}</b>'
+                                        await message.answer(f'<b>{courier.city_from} ✈ {courier.city_to}</b>\n'
+                                                             f'<b>Дата:</b> {courier.flight_date.strftime("%d.%m.%Y")}'
                                                              f'\n<b>Имя:</b> <a href="tg://user?id={courier.user_id}">'
                                                              f'{courier.user_name}</a>\n'
                                                              f'<b>Контакт:</b> {courier.phone}\n'
