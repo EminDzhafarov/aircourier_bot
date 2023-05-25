@@ -212,5 +212,5 @@ async def write_db(message: Message, state: FSMContext, session: AsyncSession, b
            f"летит {isoparse(data['flight_date']).strftime('%d.%m.%Y')} по маршруту:\n"\
            f"{data['city_from']} ✈ {data['city_to']}\n"\
            f"<b>Примечание:</b> {data['info']}"
-    await bot.send_message(chat_id=settings.AIR_CHAT_ID, text=text, reply_markup=to_bot())
+    await bot.send_message(chat_id=settings.AIR_CHAT_ID, text=text, reply_markup=to_bot(data["user_id"]))
     await state.clear()

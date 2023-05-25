@@ -1,11 +1,11 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder,InlineKeyboardButton
 from aiogram.filters.callback_data import CallbackData
 
-def to_bot():
+def to_bot(user_id):
     builder = InlineKeyboardBuilder()
     builder.row(InlineKeyboardButton(
         text='Перейти в бота!',
-        url='https://t.me/aircourier_bot')
+        url=f'https://t.me/aircourier_bot?start={user_id}')
     )
     return builder.as_markup()
 
