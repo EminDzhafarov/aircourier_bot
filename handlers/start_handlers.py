@@ -58,6 +58,10 @@ async def cmd_start(
                                                              f'<b>Контакт:</b> {courier.phone}\n'
                                                              f'<b>Примечание:</b> {courier.info}',
                                                              reply_markup=send_msg(courier.phone))
+                                await message.answer(
+                                    "Обратите внимание: некоторые курьеры запрещают писать себе настройками "
+                                    "приватности, но вы можете добавить их в контакты по номеру телефона "
+                                    "или позвонить.")
                 except ValueError:
                         pass
         await session.commit()
