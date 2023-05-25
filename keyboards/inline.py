@@ -4,7 +4,7 @@ from aiogram.filters.callback_data import CallbackData
 def to_bot(user_id):
     builder = InlineKeyboardBuilder()
     builder.row(InlineKeyboardButton(
-        text='Перейти в бота!',
+        text='Связаться!',
         url=f'https://t.me/aircourier_bot?start={user_id}')
     )
     return builder.as_markup()

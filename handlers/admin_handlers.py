@@ -208,7 +208,7 @@ async def write_db(message: Message, state: FSMContext, session: AsyncSession, b
     await session.commit()
     await message.answer('Данные записаны', reply_markup=get_to_start_kb())
 
-    text = f'<b><a href="tg://user?id={data["user_id"]}">{data["user_name"]}</a></b> '\
+    text = f"<b>{data['user_name']}</b> "\
            f"летит {isoparse(data['flight_date']).strftime('%d.%m.%Y')} по маршруту:\n"\
            f"{data['city_from']} ✈ {data['city_to']}\n"\
            f"<b>Примечание:</b> {data['info']}"
