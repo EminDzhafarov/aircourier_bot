@@ -27,7 +27,7 @@ async def cmd_start(
     stats_query = await session.execute(select(Stats).where(Stats.user_id == message.from_user.id))
     if not stats_query.scalar():
         await session.merge(Stats(user_id=message.from_user.id, timestamp=datetime.now()))
-        await message.answer("Привет!!! Этот бот поможет найти попутчиков для доставки посылок самолетом.\n\n" \
+        await message.answer("Привет! Этот бот поможет найти попутчиков для доставки посылок самолетом.\n\n" \
                              "<i>Отправляя сообщение, вы соглашаетесь на обработку персональных данных.</i>\n\n"
                              "Кстати, теперь у нас есть своя группа, где публикуются перелеты курьеров, "
                              "подписывайтесь, чтобы ничего не пропустить: @aircourier_chat")
