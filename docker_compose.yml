@@ -1,0 +1,33 @@
+version: '3.7'
+services:
+  redis:
+    image: redis:latest
+    command:
+      - redis-server
+    env_file:
+      - ./.env
+    restart: on-failure
+    ports:
+      - "6378:6378"
+  db:
+    image: postgres:15
+    env_file:
+      - ./.env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: on-failure
+    ports:
+      - "5433:5433"
+  bot:
+    build: .
+    command: sh -c "make migrate && python -m bot"
+    env_file:
+      - ./.env
+    restart: always
+    depends_on:
+      - db
+      - redis
+
+
+volumes:
+  pgdata:

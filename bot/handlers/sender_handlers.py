@@ -1,16 +1,16 @@
 from aiogram import Router
 from aiogram.filters.text import Text
-from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery
+from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from sqlalchemy import select, insert
 from sqlalchemy.ext.asyncio import AsyncSession
-from db.models import Courier, Stats_search
-from filters.blacklist import BlacklistFilter
-from states.sender_states import SenderStates
-from utils.misc.validators import isvalid_name, isvalid_city, isvalid_info
-from keyboards.citypicker import get_country_keyboard, city_keyboard, cities_by_country
-from keyboards.start import get_to_search_kb
-from keyboards.inline import send_msg
+from bot.db.models import Courier, Stats_search
+from bot.filters.blacklist import BlacklistFilter
+from bot.states.sender_states import SenderStates
+from bot.utils.misc.validators import isvalid_city
+from bot.keyboards.citypicker import get_country_keyboard, city_keyboard, cities_by_country
+from bot.keyboards.start import get_to_search_kb
+from bot.keyboards.inline import send_msg
 from datetime import datetime
 
 router = Router()

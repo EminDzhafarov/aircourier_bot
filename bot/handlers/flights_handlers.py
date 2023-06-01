@@ -1,16 +1,15 @@
 from aiogram import Router
 from aiogram.filters.text import Text
 from aiogram.types import Message, CallbackQuery
-from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 from aiogram import F
-from states.flights_states import FlightsStates
-from filters.blacklist import BlacklistFilter
+from bot.states.flights_states import FlightsStates
+from bot.filters.blacklist import BlacklistFilter
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
-from db.models import Courier
-from keyboards.start import get_to_start_kb
-from keyboards.inline import del_flight, DelFlight
+from bot.db.models import Courier
+from bot.keyboards.start import get_to_start_kb
+from bot.keyboards.inline import del_flight, DelFlight
 from datetime import datetime
 
 router = Router()
