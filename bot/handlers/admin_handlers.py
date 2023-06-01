@@ -17,7 +17,7 @@ from bot.keyboards.inline import to_bot
 from bot.keyboards.citypicker import get_country_keyboard, city_keyboard, cities_by_country
 from bot.keyboards.calendar.simple_calendar import SimpleCalendarCallback as simple_cal_callback, SimpleCalendar
 from dateutil.parser import isoparse
-import settings
+from config_reader import config
 import phonenumbers
 
 router = Router()
@@ -315,5 +315,7 @@ async def write_db(message: Message, state: FSMContext, session: AsyncSession, b
            f"летит {isoparse(data['flight_date']).strftime('%d.%m.%Y')} по маршруту:\n"\
            f"{data['city_from']} ✈ {data['city_to']}\n"\
            f"<b>Примечание:</b> {data['info']}"
-    await bot.send_message(chat_id=settings.AIR_CHAT_ID, text=text, reply_markup=to_bot(data["user_id"]))
+    await bot.send_message(chat_id=config.AIR_CHAT_ID.get_secret_value(),
+                           text=text,
+                           reply_markup=to_bot(data["user_id"]))
     await state.clear()
