@@ -22,6 +22,12 @@ router = Router()
 @router.message(Text(text="✈️ Хочу доставить", ignore_case=True), BlacklistFilter())
 @router.message(Text(text="Начать заново", ignore_case=True), BlacklistFilter())
 async def courier_start(message: Message, state: FSMContext):
+    """
+    Хэндлер для запроса имени
+    :param message:
+    :param state:
+    :return:
+    """
     await message.answer(
         'Вы выбрали роль курьера, нам нужно получить некоторую информацию о вас, чтобы передать '
         'отправителю.\n\n<i>Если вы допустили ошибку при заполнении формы, продолжайте, '
@@ -33,6 +39,12 @@ async def courier_start(message: Message, state: FSMContext):
 
 @router.message(CourierStates.waiting_for_name)
 async def courier_name(message: Message, state: FSMContext):
+    """
+    Хэндлер для получения имени и запроса страны вылета
+    :param message:
+    :param state:
+    :return:
+    """
     name = message.text.strip()
     if isvalid_name(name):
         await state.update_data(user_name=name)
@@ -44,6 +56,12 @@ async def courier_name(message: Message, state: FSMContext):
 
 @router.message(CourierStates.waiting_for_country_from)
 async def country_from(message: Message, state: FSMContext):
+    """
+    Хэндлер для получения страны вылета и запроса города вылета
+    :param message:
+    :param state:
+    :return:
+    """
     country = message.text.strip()
     if country in cities_by_country:
         await message.answer(f'Выбрана страна {country}, теперь выберите из какого города вы летите.',
@@ -54,6 +72,12 @@ async def country_from(message: Message, state: FSMContext):
 
 @router.message(CourierStates.waiting_for_city_from)
 async def city_from(message: Message, state: FSMContext):
+    """
+    Хэндлер для получения города вылета и запроса страны прилета
+    :param message:
+    :param state:
+    :return:
+    """
     city = message.text.strip()
     if city != "Назад":
         if isvalid_city(city):
@@ -68,6 +92,12 @@ async def city_from(message: Message, state: FSMContext):
 
 @router.message(CourierStates.waiting_for_country_to)
 async def country_to(message: Message, state: FSMContext):
+    """
+    Хэндлер для получения страны прилета и запроса города прилета
+    :param message:
+    :param state:
+    :return:
+    """
     country = message.text.strip()
     if country in cities_by_country:
         await message.answer(f'Выбрана страна {country}, теперь выберите в какой город вы летите.',
@@ -78,6 +108,12 @@ async def country_to(message: Message, state: FSMContext):
 
 @router.message(CourierStates.waiting_for_city_to)
 async def city_to(message: Message, state: FSMContext):
+    """
+    Хэндлер для получения города прилета и запроса даты
+    :param message:
+    :param state:
+    :return:
+    """
     city = message.text.strip()
     data = await state.get_data()
     if city != "Назад":
@@ -99,6 +135,13 @@ async def city_to(message: Message, state: FSMContext):
 
 @router.callback_query(CourierStates.waiting_for_date, simple_cal_callback.filter())
 async def process_simple_calendar(callback_query: CallbackQuery, callback_data: dict, state: FSMContext):
+    """
+    Хэндлер для получения даты через inline календарь и запроса номера телефона
+    :param callback_query:
+    :param callback_data:
+    :param state:
+    :return:
+    """
     selected, date = await SimpleCalendar().process_selection(callback_query, callback_data)
     if selected:
         await callback_query.message.delete()
@@ -113,6 +156,12 @@ async def process_simple_calendar(callback_query: CallbackQuery, callback_data: 
 
 @router.message(CourierStates.waiting_for_phone)
 async def phone(message: Message, state: FSMContext):
+    """
+    Хэндлер для получения номера телефона с валидаццией через Google Phonenumbers и запроса примечения
+    :param message:
+    :param state:
+    :return:
+    """
     try:
         phone =  phonenumbers.parse(message.text.strip(), None)
         if phonenumbers.is_valid_number(phone) == True:
@@ -130,6 +179,12 @@ async def phone(message: Message, state: FSMContext):
 
 @router.message(CourierStates.waiting_for_info)
 async def info(message: Message, state: FSMContext):
+    """
+    Хэндлер для получения примечания и валидации введенных данных
+    :param message:
+    :param state:
+    :return:
+    """
     info = message.text.strip()
     if isvalid_info(info):
         await state.update_data(info=message.text.strip())
@@ -146,6 +201,14 @@ async def info(message: Message, state: FSMContext):
 
 @router.message(CourierStates.validate, Text(text="Все правильно", ignore_case=True))
 async def write_db(message: Message, state: FSMContext, session: AsyncSession, bot: Bot):
+    """
+    Хэндлер для записи полученных данных из хранилища в базу данных, а также создания поста в канале
+    :param message:
+    :param state:
+    :param session:
+    :param bot:
+    :return:
+    """
     data = await state.get_data()
     await session.execute(insert(
         Courier).values(

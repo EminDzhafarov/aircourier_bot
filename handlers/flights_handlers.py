@@ -17,6 +17,13 @@ router = Router()
 
 @router.message(Text(text="📋 Мои перелеты", ignore_case=True), BlacklistFilter())
 async def my_flights(message: Message, state: FSMContext, session: AsyncSession):
+    """
+    Хэндлер для получения списка перелетов пользователя по user_id
+    :param message:
+    :param state:
+    :param session:
+    :return:
+    """
     await state.set_state(FlightsStates.flights)
     today = datetime.today()
     user_id = message.from_user.id
@@ -34,6 +41,13 @@ async def my_flights(message: Message, state: FSMContext, session: AsyncSession)
 
 @router.callback_query(DelFlight.filter(F.action == "delete"))
 async def send_random_value(callback: CallbackQuery, callback_data: DelFlight, session: AsyncSession):
+    """
+    Хэндлер для удаления перелета курьера
+    :param callback:
+    :param callback_data:
+    :param session:
+    :return:
+    """
     flight_id = callback_data.flight_id
     await session.execute(update(Courier).where(Courier.id == flight_id).values(status=False))
     await session.commit()

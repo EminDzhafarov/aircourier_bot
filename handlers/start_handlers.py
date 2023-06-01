@@ -15,7 +15,6 @@ from datetime import datetime
 
 router = Router()
 
-# Хэндлер на команду /start c deep link
 @router.message(Command("start"), BlacklistFilter(), FlightsFilter())
 async def cmd_start(
     message: Message,
@@ -24,6 +23,15 @@ async def cmd_start(
     session: AsyncSession,
     command: CommandObject
 ) -> None:
+    """
+    Хэндлер на команду /start, также принимает Deep Link
+    :param message:
+    :param flights:
+    :param state:
+    :param session:
+    :param command:
+    :return:
+    """
     stats_query = await session.execute(select(Stats).where(Stats.user_id == message.from_user.id))
     if not stats_query.scalar():
         await session.merge(Stats(user_id=message.from_user.id, timestamp=datetime.now()))
@@ -33,7 +41,7 @@ async def cmd_start(
                              "подписывайтесь, чтобы ничего не пропустить: @aircourier_chat")
 
     today = datetime.today()
-    if command.args:
+    if command.args: # Получение аргумента из deep link, если таковой есть
         try:
             query = (await session.scalars(select(Courier)
                                            .where(Courier.user_id == int(command.args))
@@ -59,8 +67,14 @@ async def cmd_start(
     await message.answer("Выберите что вы хотите сделать.", reply_markup=get_start_kb(flights))
     await state.set_state(StartStates.start)
 
-# Хэндлер на текст "В начало"
 @router.message(Text(text="В начало", ignore_case=True), BlacklistFilter(), FlightsFilter())
-async def begining(message: Message, flights: bool, state: FSMContext) -> None:
+async def begin(message: Message, flights: bool, state: FSMContext) -> None:
+    """
+    Хэндлер для возврата в главное меню при нажатии кнопки "В начало" на клавиатуре
+    :param message:
+    :param flights:
+    :param state:
+    :return:
+    """
     await state.set_state(StartStates.start)
     await message.answer("Выберите что вы хотите сделать.", reply_markup=get_start_kb(flights))

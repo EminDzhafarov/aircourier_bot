@@ -18,11 +18,23 @@ router = Router()
 @router.message(Text(text="Новый поиск", ignore_case=True), BlacklistFilter())
 @router.message(Text(text="📦 Хочу отправить", ignore_case=True), BlacklistFilter())
 async def answer_yes(message: Message, state: FSMContext):
+    """
+    Хэндлер для запроса страны вылета курьера
+    :param message:
+    :param state:
+    :return:
+    """
     await message.answer("Выберите откуда вы хотите отправить посылку.",reply_markup=get_country_keyboard())
     await state.set_state(SenderStates.waiting_for_country_from)
 
 @router.message(SenderStates.waiting_for_country_from)
 async def country_from(message: Message, state: FSMContext):
+    """
+    Хэндлер для запроса города вылета курьера
+    :param message:
+    :param state:
+    :return:
+    """
     country = message.text.strip()
     if country in cities_by_country:
         await message.answer(f'Выбрана страна {country}, теперь выберите из какого города вы хотите отправить посылку.',
@@ -33,6 +45,12 @@ async def country_from(message: Message, state: FSMContext):
 
 @router.message(SenderStates.waiting_for_city_from)
 async def city_from(message: Message, state: FSMContext):
+    """
+    Хэндлер для запроса страны прилета курьера
+    :param message:
+    :param state:
+    :return:
+    """
     city = message.text.strip()
     if city != "Назад":
         if isvalid_city(city):
@@ -48,6 +66,12 @@ async def city_from(message: Message, state: FSMContext):
 
 @router.message(SenderStates.waiting_for_country_to)
 async def country_to(message: Message, state: FSMContext):
+    """
+    Хэндлер для получения города прилета курьера
+    :param message:
+    :param state:
+    :return:
+    """
     country = message.text.strip()
     if country in cities_by_country:
         await message.answer(f'Выбрана страна {country}, теперь выберите в какой город вы хотите отправить посылку.',
@@ -58,6 +82,13 @@ async def country_to(message: Message, state: FSMContext):
 
 @router.message(SenderStates.waiting_for_city_to)
 async def city_to(message: Message, state: FSMContext, session: AsyncSession):
+    """
+    Хэндлер для поиска курьера по полученным данным из хранилища
+    :param message:
+    :param state:
+    :param session:
+    :return:
+    """
     city = message.text.strip()
     if city != "Назад":
         data = await state.get_data()
