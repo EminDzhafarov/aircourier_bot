@@ -1,7 +1,6 @@
 from aiogram.filters import BaseFilter
 from aiogram.types import Message
-from config_reader import config
 
 class AdminFilter(BaseFilter):
     async def __call__(self, message: Message) -> bool:
-        return message.from_user.id in config.ADMINS.get_secret_value()
+        return message.from_user.id in os.getenv('ADMINS')

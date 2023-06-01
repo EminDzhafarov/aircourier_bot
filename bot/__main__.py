@@ -7,14 +7,13 @@ from handlers import courier_handlers, sender_handlers, admin_handlers, start_ha
 from middlewares import DbSessionMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from aioredis import Redis
-from config_reader import config
 
 # Запуск процесса поллинга новых апдейтов
 async def main():
     # Объект бота
-    bot = Bot(token=config.TG_TOKEN.get_secret_value(), parse_mode="HTML")
+    bot = Bot(token=os.getenv('TG_TOKEN'), parse_mode="HTML")
     # База данных
-    engine = create_async_engine(url=config.DB_URL.get_secret_value(), echo=True)
+    engine = create_async_engine(url=os.getenv('DB_URL'), echo=True)
     sessionmaker = async_sessionmaker(engine, expire_on_commit=False)
     # Включаем логирование, чтобы не пропустить важные сообщения
     logging.basicConfig(level=logging.INFO, filename="../log.log", filemode="w")
@@ -22,7 +21,7 @@ async def main():
     redis = Redis()
     # Память
     storage = RedisStorage(redis=redis, key_builder=DefaultKeyBuilder(with_bot_id=True))\
-        .from_url(config.REDIS_URL.get_secret_value())
+        .from_url(os.getenv('REDIS_URL'))
     # Диспетчер
     dp = Dispatcher(storage=storage)
     dp.include_routers(start_handlers.router,
