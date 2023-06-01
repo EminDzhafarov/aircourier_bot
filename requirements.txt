@@ -1,6 +1,5 @@
 aiofiles==23.1.0
 aiogram==3.0.0b7
-aiogram-dialog==1.9.0
 aiogram3-calendar==0.1.2b1
 aiohttp==3.8.4
 aioredis==2.0.1
