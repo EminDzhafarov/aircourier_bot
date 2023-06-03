@@ -4,6 +4,7 @@ from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from sqlalchemy import select, insert
 from sqlalchemy.ext.asyncio import AsyncSession
+from bot.db.crud import find_couriers, add_search_stat
 from bot.db.models import Courier, Stats_search
 from bot.filters.blacklist import BlacklistFilter
 from bot.states.sender_states import SenderStates
@@ -54,7 +55,7 @@ async def city_from(message: Message, state: FSMContext):
     city = message.text.strip()
     if city != "Назад":
         if isvalid_city(city):
-            await state.update_data(city_from=city)
+            await state.update_data(user_id=message.from_user.id, city_from=city)
             await message.answer('Выберите в какую страну хотите отправить посылку.',
                                  reply_markup=get_country_keyboard())
             await state.set_state(SenderStates.waiting_for_country_to)
@@ -96,21 +97,11 @@ async def city_to(message: Message, state: FSMContext, session: AsyncSession):
             if isvalid_city(city):
                 await state.update_data(city_to=city)
                 data = await state.get_data()
-                today = datetime.today()
-                await session.execute(insert(
-                    Stats_search).values(
-                        user_id=message.from_user.id,
-                        city_from=data['city_from'],
-                        city_to=data['city_to'],
-                        timestamp=today))
-                query = (await session.scalars(select(Courier)
-                                               .where(Courier.city_from == data['city_from'])
-                                               .where(Courier.city_to == data['city_to'])
-                                               .where(Courier.flight_date >= today).where(Courier.status == True)
-                                               .order_by(Courier.flight_date))).all()
-                if query:
+                await add_search_stat(session, data)
+                couriers = await find_couriers(session, data)
+                if couriers:
                     await message.answer('Вот что мне удалось найти:', reply_markup=get_to_search_kb())
-                    for courier in query:
+                    for courier in couriers:
                         await message.answer(f'<b>Дата: {courier.flight_date.strftime("%d.%m.%Y")}</b>\n'
                                              f'<b>Имя:</b> <a href="tg://user?id={courier.user_id}">'
                                              f'{courier.user_name}</a>\n'
@@ -122,7 +113,6 @@ async def city_to(message: Message, state: FSMContext, session: AsyncSession):
                                          "или позвонить.")
                 else:
                     await message.answer('Ничего не найдено :(', reply_markup=get_to_search_kb())
-                await session.commit()
             await state.clear()
         else:
             await message.answer('Города отправления и назначения должны различаться.')

@@ -3,14 +3,12 @@ from aiogram.filters.text import Text
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram import F
+from bot.db.crud import get_flights, del_from_flight
 from bot.states.flights_states import FlightsStates
 from bot.filters.blacklist import BlacklistFilter
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
-from bot.db.models import Courier
 from bot.keyboards.start import get_to_start_kb
 from bot.keyboards.inline import del_flight, DelFlight
-from datetime import datetime
 
 router = Router()
 
@@ -24,14 +22,10 @@ async def my_flights(message: Message, state: FSMContext, session: AsyncSession)
     :return:
     """
     await state.set_state(FlightsStates.flights)
-    today = datetime.today()
     user_id = message.from_user.id
-    query = (await session.scalars(select(Courier)
-                                   .where(Courier.user_id == user_id)
-                                   .where(Courier.flight_date >= today)
-                                   .where(Courier.status == True))).all()
+    flights = await get_flights(session, user_id)
     await message.answer('Вот что мне удалось найти:', reply_markup=get_to_start_kb())
-    for flight in query:
+    for flight in flights:
         await message.answer(f'<b>Дата: {flight.flight_date.strftime("%d.%m.%Y")}</b>\n'
                              f'Имя: <a href="tg://user?id={flight.user_id}">{flight.user_name}</a>\n'
                              f'Контакт: {flight.phone}\n'
@@ -48,8 +42,7 @@ async def send_random_value(callback: CallbackQuery, callback_data: DelFlight, s
     :return:
     """
     flight_id = callback_data.flight_id
-    await session.execute(update(Courier).where(Courier.id == flight_id).values(status=False))
-    await session.commit()
+    await del_from_flight(session, flight_id)
     await callback.message.delete()
     await callback.answer(
         text="Перелет удален из базы!",

@@ -3,15 +3,13 @@ from aiogram.filters.command import Command, CommandObject
 from aiogram.filters.text import Text
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
+from bot.db.crud import get_id_from_link, add_to_stat, is_new_user
 from bot.keyboards.start import get_start_kb
 from bot.keyboards.inline import send_msg
 from bot.filters.blacklist import BlacklistFilter
 from bot.filters.flights import FlightsFilter
 from bot.states.start_states import StartStates
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from bot.db.models import Stats, Courier
-from datetime import datetime
 
 router = Router()
 
@@ -32,24 +30,20 @@ async def cmd_start(
     :param command:
     :return:
     """
-    stats_query = await session.execute(select(Stats).where(Stats.user_id == message.from_user.id))
-    if not stats_query.scalar():
-        await session.merge(Stats(user_id=message.from_user.id, timestamp=datetime.now()))
+    old_user = await is_new_user(session, message.from_user.id)
+    if not old_user:
+        await add_to_stat(session, message.from_user.id)
         await message.answer("Привет! Этот бот поможет найти попутчиков для доставки посылок самолетом.\n\n" \
                              "<i>Отправляя сообщение, вы соглашаетесь на обработку персональных данных.</i>\n\n"
                              "Кстати, теперь у нас есть своя группа, где публикуются перелеты курьеров, "
                              "подписывайтесь, чтобы ничего не пропустить: @aircourier_chat")
 
-    today = datetime.today()
-    if command.args: # Получение аргумента из deep link, если таковой есть
+    deep_link = command.args
+    if deep_link: # Получение аргумента из deep link, если таковой есть
         try:
-            query = (await session.scalars(select(Courier)
-                                           .where(Courier.user_id == int(command.args))
-                                           .where(Courier.flight_date >= today)
-                                           .where(Courier.status == True)
-                                           .order_by(Courier.flight_date))).all()
-            if query:
-                for courier in query:
+            couriers = await get_id_from_link(session, deep_link)
+            if couriers:
+                for courier in couriers:
                     await message.answer(f'<b>{courier.city_from} ✈ {courier.city_to}</b>\n'
                                          f'<b>Дата:</b> {courier.flight_date.strftime("%d.%m.%Y")}'
                                          f'\n<b>Имя:</b> <a href="tg://user?id={courier.user_id}">'
