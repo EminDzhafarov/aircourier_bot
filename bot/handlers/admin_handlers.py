@@ -4,13 +4,12 @@ from aiogram.filters.text import Text
 from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, insert, delete
+from bot.db.crud import add_courier, add_to_blacklist, del_from_blacklist, get_all_blacklist
 from bot.keyboards.admin import get_admin_start, get_admin_add
 from bot.keyboards.start import get_to_start_kb
 from bot.keyboards.inline import del_blacklist, DelBlacklist
 from bot.states.admin_states import AdminStates
 from bot.filters.admin import AdminFilter
-from bot.db.models import Blacklist, Courier
 from bot.utils.misc.validators import isvalid_name, isvalid_city, isvalid_info
 from bot.keyboards.validate import get_valid_kb
 from bot.keyboards.inline import to_bot
@@ -68,8 +67,7 @@ async def blacklist_add_finish(message: Message, state: FSMContext, session: Asy
     :return:
     """
     data = await state.get_data()
-    await session.execute(insert(Blacklist).values(user_id=data['user_id']))
-    await session.commit()
+    await add_to_blacklist(session, data)
     await state.clear()
     await message.answer("Пользователь добавлен в черный список.", reply_markup=get_to_start_kb())
 
@@ -83,9 +81,9 @@ async def blacklist_del(message: Message, state: FSMContext, session: AsyncSessi
     :return:
     """
     await state.set_state(AdminStates.delete)
-    query = (await session.scalars(select(Blacklist))).all()
+    blacklist = await get_all_blacklist(session)
     await message.answer("Вот черный список:", reply_markup=get_to_start_kb())
-    for users in query:
+    for users in blacklist:
         await message.answer(f'<a href="tg://user?id={users.user_id}">{users.user_id}</a>',
                              reply_markup=del_blacklist(users.user_id))
 
@@ -99,8 +97,7 @@ async def send_random_value(callback: CallbackQuery, callback_data: DelBlacklist
     :return:
     """
     user_id = callback_data.user_id
-    await session.execute(delete(Blacklist).where(Blacklist.user_id == user_id))
-    await session.commit()
+    await del_from_blacklist(session, user_id)
     await callback.message.delete()
     await callback.answer(
         text="Пользователь удален из ЧС!",
@@ -296,19 +293,7 @@ async def write_db(message: Message, state: FSMContext, session: AsyncSession, b
     :return:
     """
     data = await state.get_data()
-    await session.execute(insert(
-        Courier).values(
-            user_id=data['user_id'],
-            user_name = data['user_name'],
-            city_from=data['city_from'],
-            city_to=data['city_to'],
-            flight_date=isoparse(data['flight_date']),
-            phone=data['phone'],
-            info=data['info'],
-            status=True
-        )
-    )
-    await session.commit()
+    await add_courier(session, data)
     await message.answer('Данные записаны', reply_markup=get_to_start_kb())
 
     text = f"<b>{data['user_name']}</b> "\

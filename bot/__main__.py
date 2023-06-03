@@ -16,7 +16,8 @@ async def main():
     engine = create_async_engine(url=os.getenv('DB_URL'), echo=True)
     sessionmaker = async_sessionmaker(engine, expire_on_commit=False)
     # Включаем логирование, чтобы не пропустить важные сообщения
-    logging.basicConfig(level=logging.INFO, filename="../log.log", filemode="w")
+    logging.basicConfig(level=logging.INFO)
+    # logging.basicConfig(level=logging.INFO, filename="../log.log", filemode="w")
     # Redis
     redis = Redis()
     # Память

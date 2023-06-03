@@ -2,9 +2,8 @@ from aiogram import Router, Bot
 from aiogram.filters.text import Text
 from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery
 from aiogram.fsm.context import FSMContext
-from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import AsyncSession
-from bot.db.models import Courier
+from bot.db import crud
 from bot.states.courier_states import CourierStates
 from bot.filters.blacklist import BlacklistFilter
 from bot.utils.misc.validators import isvalid_name, isvalid_city, isvalid_info
@@ -47,7 +46,7 @@ async def courier_name(message: Message, state: FSMContext):
     """
     name = message.text.strip()
     if isvalid_name(name):
-        await state.update_data(user_name=name)
+        await state.update_data(user_id=message.from_user.id, user_name=name)
         await message.answer(f'Очень приятно, {name}! Выберите из какой страны вы летите.',
                              reply_markup=get_country_keyboard())
         await state.set_state(CourierStates.waiting_for_country_from)
@@ -210,19 +209,7 @@ async def write_db(message: Message, state: FSMContext, session: AsyncSession, b
     :return:
     """
     data = await state.get_data()
-    await session.execute(insert(
-        Courier).values(
-            user_id=message.from_user.id,
-            user_name = data['user_name'],
-            city_from=data['city_from'],
-            city_to=data['city_to'],
-            flight_date=isoparse(data['flight_date']),
-            phone=data['phone'],
-            info=data['info'],
-            status=True
-        )
-    )
-    await session.commit()
+    await crud.add_courier(session, data)
     await message.answer('Поздравляем! Мы получили ваши данные, они доступны для поиска. ' \
                          '\n\nТеперь осталось только дождаться сообщения от отправителя и договориться о цене. ' \
                          '\n\nСоздатель этого бота не несет ответственности за грузы и их содержимое, ' \
