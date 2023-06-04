@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, insert, update, delete
-from bot.db.models import Courier, StatsSearch, Stats, Blacklist, Admins
+from db.models import Courier, StatsSearch, Stats, Blacklist, Admins
 from dateutil.parser import isoparse
 from datetime import datetime
 

@@ -2,7 +2,7 @@ from aiogram.filters import BaseFilter
 from aiogram.types import Message
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from bot.db.models import Courier
+from db.models import Courier
 from datetime import datetime
 
 

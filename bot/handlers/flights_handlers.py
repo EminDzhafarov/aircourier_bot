@@ -3,12 +3,12 @@ from aiogram.filters.text import Text
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram import F
-from bot.db.crud import get_flights, del_from_flight
-from bot.states.flights_states import FlightsStates
-from bot.filters.blacklist import BlacklistFilter
+from db.crud import get_flights, del_from_flight
+from states.flights_states import FlightsStates
+from filters.blacklist import BlacklistFilter
 from sqlalchemy.ext.asyncio import AsyncSession
-from bot.keyboards.start import get_to_start_kb
-from bot.keyboards.inline import del_flight, DelFlight
+from keyboards.start import get_to_start_kb
+from keyboards.inline import del_flight, DelFlight
 
 router = Router()
 

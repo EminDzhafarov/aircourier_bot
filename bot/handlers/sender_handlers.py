@@ -3,13 +3,13 @@ from aiogram.filters.text import Text
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
-from bot.db.crud import find_couriers, add_search_stat
-from bot.filters.blacklist import BlacklistFilter
-from bot.states.sender_states import SenderStates
-from bot.utils.misc.validators import isvalid_city
-from bot.keyboards.citypicker import get_country_keyboard, city_keyboard, cities_by_country
-from bot.keyboards.start import get_to_search_kb
-from bot.keyboards.inline import send_msg
+from db.crud import find_couriers, add_search_stat
+from filters.blacklist import BlacklistFilter
+from states.sender_states import SenderStates
+from utils.misc.validators import isvalid_city
+from keyboards.citypicker import get_country_keyboard, city_keyboard, cities_by_country
+from keyboards.start import get_to_search_kb
+from keyboards.inline import send_msg
 
 router = Router()
 

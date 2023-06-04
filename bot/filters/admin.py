@@ -1,6 +1,6 @@
 from aiogram.filters import BaseFilter
 from aiogram.types import Message
-from bot.db.crud import get_admin
+from db.crud import get_admin
 from sqlalchemy.ext.asyncio import AsyncSession
 
 

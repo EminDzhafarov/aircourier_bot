@@ -3,15 +3,15 @@ from aiogram.filters.text import Text
 from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
-from bot.db import crud
-from bot.states.courier_states import CourierStates
-from bot.filters.blacklist import BlacklistFilter
-from bot.utils.misc.validators import isvalid_name, isvalid_city, isvalid_info
-from bot.keyboards.validate import get_valid_kb
-from bot.keyboards.start import get_to_start_kb
-from bot.keyboards.inline import to_bot
-from bot.keyboards.citypicker import get_country_keyboard, city_keyboard, cities_by_country
-from bot.keyboards.calendar.simple_calendar import SimpleCalendarCallback as simple_cal_callback, SimpleCalendar
+from db import crud
+from states.courier_states import CourierStates
+from filters.blacklist import BlacklistFilter
+from utils.misc.validators import isvalid_name, isvalid_city, isvalid_info
+from keyboards.validate import get_valid_kb
+from keyboards.start import get_to_start_kb
+from keyboards.inline import to_bot
+from keyboards.citypicker import get_country_keyboard, city_keyboard, cities_by_country
+from keyboards.calendar.simple_calendar import SimpleCalendarCallback as simple_cal_callback, SimpleCalendar
 from dateutil.parser import isoparse
 import phonenumbers
 import os

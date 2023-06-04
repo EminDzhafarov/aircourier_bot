@@ -1,7 +1,7 @@
 from aiogram.filters import BaseFilter
 from aiogram.types import Message
 from sqlalchemy.ext.asyncio import AsyncSession
-from bot.db.crud import get_blacklist
+from db.crud import get_blacklist
 
 
 class BlacklistFilter(BaseFilter):
