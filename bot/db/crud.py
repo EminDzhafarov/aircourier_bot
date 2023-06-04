@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, insert, update, delete
-from bot.db.models import Courier, Stats_search, Stats, Blacklist, Admins
+from bot.db.models import Courier, StatsSearch, Stats, Blacklist, Admins
 from dateutil.parser import isoparse
 from datetime import datetime
 
@@ -13,15 +13,15 @@ async def add_courier(session: AsyncSession, data):
     :return:
     """
     await session.execute(insert(Courier).values(
-            user_id=data['user_id'],
-            user_name = data['user_name'],
-            city_from=data['city_from'],
-            city_to=data['city_to'],
-            flight_date=isoparse(data['flight_date']),
-            phone=data['phone'],
-            info=data['info'],
-            status=True
-        )
+        user_id=data['user_id'],
+        user_name=data['user_name'],
+        city_from=data['city_from'],
+        city_to=data['city_to'],
+        flight_date=isoparse(data['flight_date']),
+        phone=data['phone'],
+        info=data['info'],
+        status=True
+    )
     )
     await session.commit()
 
@@ -35,10 +35,10 @@ async def find_couriers(session: AsyncSession, data):
     """
     today = datetime.today()
     return (await session.scalars(select(Courier)
-                              .where(Courier.city_from == data['city_from'])
-                              .where(Courier.city_to == data['city_to'])
-                              .where(Courier.flight_date >= today).where(Courier.status == True)
-                              .order_by(Courier.flight_date))).all()
+                                  .where(Courier.city_from == data['city_from'])
+                                  .where(Courier.city_to == data['city_to'])
+                                  .where(Courier.flight_date >= today).where(Courier.status == True)
+                                  .order_by(Courier.flight_date))).all()
 
 
 async def add_search_stat(session: AsyncSession, data):
@@ -50,7 +50,7 @@ async def add_search_stat(session: AsyncSession, data):
     """
     today = datetime.today()
     await session.execute(insert(
-        Stats_search).values(
+        StatsSearch).values(
         user_id=data['user_id'],
         city_from=data['city_from'],
         city_to=data['city_to'],
@@ -67,10 +67,10 @@ async def get_id_from_link(session: AsyncSession, user_id):
     """
     today = datetime.today()
     return (await session.scalars(select(Courier)
-                           .where(Courier.user_id == int(user_id))
-                           .where(Courier.flight_date >= today)
-                           .where(Courier.status == True)
-                           .order_by(Courier.flight_date))).all()
+                                  .where(Courier.user_id == int(user_id))
+                                  .where(Courier.flight_date >= today)
+                                  .where(Courier.status == True)
+                                  .order_by(Courier.flight_date))).all()
 
 
 async def get_admin(session: AsyncSession, user_id):
@@ -154,9 +154,9 @@ async def get_flights(session: AsyncSession, user_id):
     """
     today = datetime.today()
     return (await session.scalars(select(Courier)
-                           .where(Courier.user_id == user_id)
-                           .where(Courier.flight_date >= today)
-                           .where(Courier.status == True))).all()
+                                  .where(Courier.user_id == user_id)
+                                  .where(Courier.flight_date >= today)
+                                  .where(Courier.status == True))).all()
 
 
 async def del_from_flight(session: AsyncSession, flight_id):

@@ -18,6 +18,7 @@ import os
 
 router = Router()
 
+
 @router.message(Text(text="✈️ Хочу доставить", ignore_case=True), BlacklistFilter())
 @router.message(Text(text="Начать заново", ignore_case=True), BlacklistFilter())
 async def courier_start(message: Message, state: FSMContext):
@@ -36,6 +37,7 @@ async def courier_start(message: Message, state: FSMContext):
     await message.answer("Напишите как вас зовут.")
     await state.set_state(CourierStates.waiting_for_name)
 
+
 @router.message(CourierStates.waiting_for_name)
 async def courier_name(message: Message, state: FSMContext):
     """
@@ -53,6 +55,7 @@ async def courier_name(message: Message, state: FSMContext):
     else:
         await message.answer('Неправильный формат, используйте только русские или латинские буквы.')
 
+
 @router.message(CourierStates.waiting_for_country_from)
 async def country_from(message: Message, state: FSMContext):
     """
@@ -68,6 +71,7 @@ async def country_from(message: Message, state: FSMContext):
         await state.set_state(CourierStates.waiting_for_city_from)
     else:
         await message.answer('Сервис пока не работает в этой стране.')
+
 
 @router.message(CourierStates.waiting_for_city_from)
 async def city_from(message: Message, state: FSMContext):
@@ -87,7 +91,8 @@ async def city_from(message: Message, state: FSMContext):
             await message.answer('Неправильный формат, используйте только русские или латинские буквы.')
     else:
         await state.set_state(CourierStates.waiting_for_country_from)
-        await message.answer('Выберите из какой страны вы летите.',reply_markup=get_country_keyboard())
+        await message.answer('Выберите из какой страны вы летите.', reply_markup=get_country_keyboard())
+
 
 @router.message(CourierStates.waiting_for_country_to)
 async def country_to(message: Message, state: FSMContext):
@@ -104,6 +109,7 @@ async def country_to(message: Message, state: FSMContext):
         await state.set_state(CourierStates.waiting_for_city_to)
     else:
         await message.answer('Сервис пока не работает в этой стране.')
+
 
 @router.message(CourierStates.waiting_for_city_to)
 async def city_to(message: Message, state: FSMContext):
@@ -153,6 +159,7 @@ async def process_simple_calendar(callback_query: CallbackQuery, callback_data: 
         await callback_query.message.answer('Для надежности отправителю лучше знать ваш номер телефона. Не забудьте '
                                             'указать код страны. Пример: +79997654321.')
 
+
 @router.message(CourierStates.waiting_for_phone)
 async def phone(message: Message, state: FSMContext):
     """
@@ -162,19 +169,21 @@ async def phone(message: Message, state: FSMContext):
     :return:
     """
     try:
-        phone =  phonenumbers.parse(message.text.strip(), None)
-        if phonenumbers.is_valid_number(phone) == True:
+        phone = phonenumbers.parse(message.text.strip(), None)
+        if phonenumbers.is_valid_number(phone):
             phone = phonenumbers.format_number(phone, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
             await state.update_data(phone=phone)
             await message.answer('Отправителю будет полезно знать о том, что вы готовы брать с собой, а что не '
-                    'готовы.\n\nУкажите, например, сколько у вас доступно мест багажа, какие габариты посылки можете '
-                    'принять и т.д. \n\nЕстественно, брать с собой запрещенные к провозу вещества и предметы мы '
-                    'не советуем, также рекомендуем ознакомиться с правилами провоза багажа вашей авиакомпании.')
+                                 'готовы.\n\nУкажите, например, сколько у вас доступно мест багажа, какие габариты '
+                                 'посылки можете принять и т.д. \n\nЕстественно, брать с собой запрещенные к провозу '
+                                 'вещества и предметы мы не советуем, также рекомендуем ознакомиться с правилами '
+                                 'провоза багажа вашей авиакомпании.')
             await state.set_state(CourierStates.waiting_for_info)
         else:
             await message.answer('Номер телефона введен в неправильном формате, попробуйте еще раз.')
     except phonenumbers.NumberParseException:
         await message.answer('Номер телефона введен в неправильном формате, попробуйте еще раз.')
+
 
 @router.message(CourierStates.waiting_for_info)
 async def info(message: Message, state: FSMContext):
@@ -198,6 +207,7 @@ async def info(message: Message, state: FSMContext):
     else:
         await message.answer('Неправильный формат, используйте только русские или латинские буквы.')
 
+
 @router.message(CourierStates.validate, Text(text="Все правильно", ignore_case=True))
 async def write_db(message: Message, state: FSMContext, session: AsyncSession, bot: Bot):
     """
@@ -210,16 +220,16 @@ async def write_db(message: Message, state: FSMContext, session: AsyncSession, b
     """
     data = await state.get_data()
     await crud.add_courier(session, data)
-    await message.answer('Поздравляем! Мы получили ваши данные, они доступны для поиска. ' \
-                         '\n\nТеперь осталось только дождаться сообщения от отправителя и договориться о цене. ' \
-                         '\n\nСоздатель этого бота не несет ответственности за грузы и их содержимое, ' \
+    await message.answer('Поздравляем! Мы получили ваши данные, они доступны для поиска. '
+                         '\n\nТеперь осталось только дождаться сообщения от отправителя и договориться о цене. '
+                         '\n\nСоздатель этого бота не несет ответственности за грузы и их содержимое, '
                          'все действия вы выполняете на свой страх и риск, соблюдайте осторожность.'
                          '\n\nТакже будем рады видеть вас в нашем чате @aircourier_chat !',
                          reply_markup=get_to_start_kb())
 
-    text = f"<b>{data['user_name']}</b> "\
-           f"летит {isoparse(data['flight_date']).strftime('%d.%m.%Y')} по маршруту:\n"\
-           f"{data['city_from']} ✈ {data['city_to']}\n"\
+    text = f"<b>{data['user_name']}</b> " \
+           f"летит {isoparse(data['flight_date']).strftime('%d.%m.%Y')} по маршруту:\n" \
+           f"{data['city_from']} ✈ {data['city_to']}\n" \
            f"<b>Примечание:</b> {data['info']}"
     await bot.send_message(chat_id=os.getenv('AIR_CHAT_ID'),
                            text=text,

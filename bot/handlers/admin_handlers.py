@@ -21,6 +21,7 @@ import phonenumbers
 
 router = Router()
 
+
 @router.message(Command("admin"), AdminFilter())
 async def blacklist_start(message: Message, state: FSMContext):
     """
@@ -33,6 +34,7 @@ async def blacklist_start(message: Message, state: FSMContext):
     await state.set_state(AdminStates.start)
     await message.answer("Что нужно сделать?", reply_markup=get_admin_start())
 
+
 @router.message(Text("Добавить"), AdminFilter())
 async def blacklist_add(message: Message, state: FSMContext):
     """
@@ -43,6 +45,7 @@ async def blacklist_add(message: Message, state: FSMContext):
     """
     await state.set_state(AdminStates.add)
     await message.answer("Введите user_id", reply_markup=ReplyKeyboardRemove)
+
 
 @router.message(AdminStates.add)
 async def blacklist_add_validator(message: Message, state: FSMContext):
@@ -57,6 +60,7 @@ async def blacklist_add_validator(message: Message, state: FSMContext):
     await state.set_state(AdminStates.add_validator)
     await message.answer(f"Подтвердите добавление {user_id} в черный список.", reply_markup=get_admin_add())
 
+
 @router.message(Text("Подтверждаю добавление"), AdminFilter())
 async def blacklist_add_finish(message: Message, state: FSMContext, session: AsyncSession):
     """
@@ -70,6 +74,7 @@ async def blacklist_add_finish(message: Message, state: FSMContext, session: Asy
     await add_to_blacklist(session, data)
     await state.clear()
     await message.answer("Пользователь добавлен в черный список.", reply_markup=get_to_start_kb())
+
 
 @router.message(Text("Удалить"), AdminFilter())
 async def blacklist_del(message: Message, state: FSMContext, session: AsyncSession):
@@ -86,6 +91,7 @@ async def blacklist_del(message: Message, state: FSMContext, session: AsyncSessi
     for users in blacklist:
         await message.answer(f'<a href="tg://user?id={users.user_id}">{users.user_id}</a>',
                              reply_markup=del_blacklist(users.user_id))
+
 
 @router.callback_query(DelBlacklist.filter(F.action == "delete"))
 async def send_random_value(callback: CallbackQuery, callback_data: DelBlacklist, session: AsyncSession):
@@ -104,6 +110,7 @@ async def send_random_value(callback: CallbackQuery, callback_data: DelBlacklist
         show_alert=True
     )
 
+
 @router.message(Text(text="Добавить рейс", ignore_case=True), AdminFilter())
 async def courier_start(message: Message, state: FSMContext):
     """
@@ -114,6 +121,7 @@ async def courier_start(message: Message, state: FSMContext):
     """
     await message.answer('user_id', reply_markup=get_to_start_kb())
     await state.set_state(AdminStates.waiting_for_id)
+
 
 @router.message(AdminStates.waiting_for_id)
 async def courier_id(message: Message, state: FSMContext):
@@ -126,6 +134,7 @@ async def courier_id(message: Message, state: FSMContext):
     await state.update_data(user_id=message.text.strip())
     await message.answer('Имя', reply_markup=get_to_start_kb())
     await state.set_state(AdminStates.waiting_for_name)
+
 
 @router.message(AdminStates.waiting_for_name)
 async def courier_name(message: Message, state: FSMContext):
@@ -143,6 +152,7 @@ async def courier_name(message: Message, state: FSMContext):
     else:
         await message.answer('Неправильный формат, используйте только русские или латинские буквы.')
 
+
 @router.message(AdminStates.waiting_for_country_from)
 async def country_from(message: Message, state: FSMContext):
     """
@@ -157,6 +167,7 @@ async def country_from(message: Message, state: FSMContext):
         await state.set_state(AdminStates.waiting_for_city_from)
     else:
         await message.answer('Сервис пока не работает в этой стране.')
+
 
 @router.message(AdminStates.waiting_for_city_from)
 async def city_from(message: Message, state: FSMContext):
@@ -176,7 +187,8 @@ async def city_from(message: Message, state: FSMContext):
             await message.answer('Неправильный формат, используйте только русские или латинские буквы.')
     else:
         await state.set_state(AdminStates.waiting_for_country_from)
-        await message.answer('Выберите из какой страны вы летите.',reply_markup=get_country_keyboard())
+        await message.answer('Выберите из какой страны вы летите.', reply_markup=get_country_keyboard())
+
 
 @router.message(AdminStates.waiting_for_country_to)
 async def country_to(message: Message, state: FSMContext):
@@ -192,6 +204,7 @@ async def country_to(message: Message, state: FSMContext):
         await state.set_state(AdminStates.waiting_for_city_to)
     else:
         await message.answer('Сервис пока не работает в этой стране.')
+
 
 @router.message(AdminStates.waiting_for_city_to)
 async def city_to(message: Message, state: FSMContext):
@@ -240,6 +253,7 @@ async def process_simple_calendar(callback_query: CallbackQuery, callback_data: 
         await state.set_state(AdminStates.waiting_for_phone)
         await callback_query.message.answer('Номер телефона в формате +79997654321.')
 
+
 @router.message(AdminStates.waiting_for_phone)
 async def phone(message: Message, state: FSMContext):
     """
@@ -249,8 +263,8 @@ async def phone(message: Message, state: FSMContext):
     :return:
     """
     try:
-        phone =  phonenumbers.parse(message.text.strip(), None)
-        if phonenumbers.is_valid_number(phone) == True:
+        phone = phonenumbers.parse(message.text.strip(), None)
+        if phonenumbers.is_valid_number(phone):
             phone = phonenumbers.format_number(phone, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
             await state.update_data(phone=phone)
             await message.answer('Примечание')
@@ -259,6 +273,7 @@ async def phone(message: Message, state: FSMContext):
             await message.answer('Номер телефона введен в неправильном формате, попробуйте еще раз.')
     except phonenumbers.NumberParseException:
         await message.answer('Номер телефона введен в неправильном формате, попробуйте еще раз.')
+
 
 @router.message(AdminStates.waiting_for_info)
 async def info(message: Message, state: FSMContext):
@@ -277,10 +292,11 @@ async def info(message: Message, state: FSMContext):
                              f"Телефон: {data['phone']}\n"
                              f"Примечание: {data['info']}", reply_markup=get_valid_kb())
         await state.set_state(AdminStates.validate)
-    elif len(info) > 200: # При изменении длины строки также поменять длину в моделях и создать новые схемы
+    elif len(info) > 200:  # При изменении длины строки также поменять длину в моделях и создать новые схемы
         await message.answer('Сообщение слишком длинное, сократите его.')
     else:
         await message.answer('Неправильный формат, используйте только русские или латинские буквы.')
+
 
 @router.message(AdminStates.validate, Text(text="Все правильно", ignore_case=True))
 async def write_db(message: Message, state: FSMContext, session: AsyncSession, bot: Bot):

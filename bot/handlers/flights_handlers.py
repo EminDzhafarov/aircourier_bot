@@ -12,6 +12,7 @@ from bot.keyboards.inline import del_flight, DelFlight
 
 router = Router()
 
+
 @router.message(Text(text="📋 Мои перелеты", ignore_case=True), BlacklistFilter())
 async def my_flights(message: Message, state: FSMContext, session: AsyncSession):
     """
@@ -32,6 +33,7 @@ async def my_flights(message: Message, state: FSMContext, session: AsyncSession)
                              f'Примечание: {flight.info}', reply_markup=del_flight(flight.id)
                              )
 
+
 @router.callback_query(DelFlight.filter(F.action == "delete"))
 async def send_random_value(callback: CallbackQuery, callback_data: DelFlight, session: AsyncSession):
     """
@@ -48,4 +50,3 @@ async def send_random_value(callback: CallbackQuery, callback_data: DelFlight, s
         text="Перелет удален из базы!",
         show_alert=True
     )
-

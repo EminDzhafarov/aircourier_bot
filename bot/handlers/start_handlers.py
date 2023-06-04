@@ -13,13 +13,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 router = Router()
 
+
 @router.message(Command("start"), BlacklistFilter(), FlightsFilter())
 async def cmd_start(
-    message: Message,
-    flights: bool,
-    state: FSMContext,
-    session: AsyncSession,
-    command: CommandObject
+        message: Message,
+        flights: bool,
+        state: FSMContext,
+        session: AsyncSession,
+        command: CommandObject
 ) -> None:
     """
     Хэндлер на команду /start, также принимает Deep Link
@@ -33,13 +34,13 @@ async def cmd_start(
     old_user = await is_new_user(session, message.from_user.id)
     if not old_user:
         await add_to_stat(session, message.from_user.id)
-        await message.answer("Привет! Этот бот поможет найти попутчиков для доставки посылок самолетом.\n\n" \
+        await message.answer("Привет! Этот бот поможет найти попутчиков для доставки посылок самолетом.\n\n"
                              "<i>Отправляя сообщение, вы соглашаетесь на обработку персональных данных.</i>\n\n"
                              "Кстати, теперь у нас есть своя группа, где публикуются перелеты курьеров, "
                              "подписывайтесь, чтобы ничего не пропустить: @aircourier_chat")
 
     deep_link = command.args
-    if deep_link: # Получение аргумента из deep link, если таковой есть
+    if deep_link:  # Получение аргумента из deep link, если таковой есть
         try:
             couriers = await get_id_from_link(session, deep_link)
             if couriers:
@@ -56,10 +57,11 @@ async def cmd_start(
                     "приватности, но вы можете добавить их в контакты по номеру телефона "
                     "или позвонить.")
         except ValueError:
-                pass
+            pass
     await session.commit()
     await message.answer("Выберите что вы хотите сделать.", reply_markup=get_start_kb(flights))
     await state.set_state(StartStates.start)
+
 
 @router.message(Text(text="В начало", ignore_case=True), BlacklistFilter(), FlightsFilter())
 async def begin(message: Message, flights: bool, state: FSMContext) -> None:

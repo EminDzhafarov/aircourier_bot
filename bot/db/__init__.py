@@ -1,10 +1,11 @@
 from .base import Base
-from .models import Courier, Blacklist, Stats, Stats_search
+from .models import Courier, Blacklist, Stats, StatsSearch, Admins
 
 __all__ = [
     "Base",
-    "Courier"
-    "Blacklist"
-    "Stats"
-    "Stats_search"
+    "Courier",
+    "Blacklist",
+    "Admins",
+    "Stats",
+    "StatsSearch"
 ]

@@ -5,6 +5,7 @@ from sqlalchemy import select
 from bot.db.models import Courier
 from datetime import datetime
 
+
 class FlightsFilter(BaseFilter):
     async def __call__(self, message: Message, session: AsyncSession) -> bool:
         today = datetime.today()

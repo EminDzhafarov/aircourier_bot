@@ -2,19 +2,17 @@ from aiogram import Router
 from aiogram.filters.text import Text
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
-from sqlalchemy import select, insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from bot.db.crud import find_couriers, add_search_stat
-from bot.db.models import Courier, Stats_search
 from bot.filters.blacklist import BlacklistFilter
 from bot.states.sender_states import SenderStates
 from bot.utils.misc.validators import isvalid_city
 from bot.keyboards.citypicker import get_country_keyboard, city_keyboard, cities_by_country
 from bot.keyboards.start import get_to_search_kb
 from bot.keyboards.inline import send_msg
-from datetime import datetime
 
 router = Router()
+
 
 @router.message(Text(text="Новый поиск", ignore_case=True), BlacklistFilter())
 @router.message(Text(text="📦 Хочу отправить", ignore_case=True), BlacklistFilter())
@@ -25,8 +23,9 @@ async def answer_yes(message: Message, state: FSMContext):
     :param state:
     :return:
     """
-    await message.answer("Выберите откуда вы хотите отправить посылку.",reply_markup=get_country_keyboard())
+    await message.answer("Выберите откуда вы хотите отправить посылку.", reply_markup=get_country_keyboard())
     await state.set_state(SenderStates.waiting_for_country_from)
+
 
 @router.message(SenderStates.waiting_for_country_from)
 async def country_from(message: Message, state: FSMContext):
@@ -43,6 +42,7 @@ async def country_from(message: Message, state: FSMContext):
         await state.set_state(SenderStates.waiting_for_city_from)
     else:
         await message.answer('Сервис пока не работает в этой стране.')
+
 
 @router.message(SenderStates.waiting_for_city_from)
 async def city_from(message: Message, state: FSMContext):
@@ -63,7 +63,8 @@ async def city_from(message: Message, state: FSMContext):
             await message.answer('Неправильный формат, используйте только русские или латинские буквы.')
     else:
         await state.set_state(SenderStates.waiting_for_country_from)
-        await message.answer("Выберите откуда вы хотите отправить посылку.",reply_markup=get_country_keyboard())
+        await message.answer("Выберите откуда вы хотите отправить посылку.", reply_markup=get_country_keyboard())
+
 
 @router.message(SenderStates.waiting_for_country_to)
 async def country_to(message: Message, state: FSMContext):
@@ -80,6 +81,7 @@ async def country_to(message: Message, state: FSMContext):
         await state.set_state(SenderStates.waiting_for_city_to)
     else:
         await message.answer('Сервис пока не работает в этой стране.')
+
 
 @router.message(SenderStates.waiting_for_city_to)
 async def city_to(message: Message, state: FSMContext, session: AsyncSession):

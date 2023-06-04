@@ -8,6 +8,7 @@ from middlewares import DbSessionMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from aioredis import Redis
 
+
 # Запуск процесса поллинга новых апдейтов
 async def main():
     # Объект бота
