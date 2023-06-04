@@ -10,5 +10,4 @@ Bot for searching air couriers
 DB_URL=
 AIR_CHAT_ID=
 REDIS_URL=
-ADMINS=
 </code>
