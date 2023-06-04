@@ -28,6 +28,7 @@ async def my_flights(message: Message, state: FSMContext, session: AsyncSession)
     await message.answer('Вот что мне удалось найти:', reply_markup=get_to_start_kb())
     for flight in flights:
         await message.answer(f'<b>Дата: {flight.flight_date.strftime("%d.%m.%Y")}</b>\n'
+                             f"{flight.city_from} ✈ {flight.city_to}\n"
                              f'Имя: <a href="tg://user?id={flight.user_id}">{flight.user_name}</a>\n'
                              f'Контакт: {flight.phone}\n'
                              f'Примечание: {flight.info}', reply_markup=del_flight(flight.id)
