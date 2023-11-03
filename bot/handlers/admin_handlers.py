@@ -1,7 +1,6 @@
 from aiogram import Router, F, Bot
 from aiogram.filters import Command
-from aiogram.filters.text import Text
-from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery
+from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.crud import add_courier, add_to_blacklist, del_from_blacklist, get_all_blacklist
@@ -35,7 +34,7 @@ async def blacklist_start(message: Message, state: FSMContext):
     await message.answer("Что нужно сделать?", reply_markup=get_admin_start())
 
 
-@router.message(Text("Добавить"), AdminFilter())
+@router.message(F.text == "Добавить", AdminFilter())
 async def blacklist_add(message: Message, state: FSMContext):
     """
     Хэндлер для добавления пользователя в черный список
@@ -44,7 +43,7 @@ async def blacklist_add(message: Message, state: FSMContext):
     :return:
     """
     await state.set_state(AdminStates.add)
-    await message.answer("Введите user_id", reply_markup=ReplyKeyboardRemove)
+    await message.answer("Введите user_id", reply_markup=ReplyKeyboardRemove())
 
 
 @router.message(AdminStates.add)
@@ -61,7 +60,7 @@ async def blacklist_add_validator(message: Message, state: FSMContext):
     await message.answer(f"Подтвердите добавление {user_id} в черный список.", reply_markup=get_admin_add())
 
 
-@router.message(Text("Подтверждаю добавление"), AdminFilter())
+@router.message(F.text == "Подтверждаю добавление", AdminFilter())
 async def blacklist_add_finish(message: Message, state: FSMContext, session: AsyncSession):
     """
     Хэндлер для добавления user_id пользователя в таблицу "Blacklist" базы данных
@@ -76,7 +75,7 @@ async def blacklist_add_finish(message: Message, state: FSMContext, session: Asy
     await message.answer("Пользователь добавлен в черный список.", reply_markup=get_to_start_kb())
 
 
-@router.message(Text("Удалить"), AdminFilter())
+@router.message(F.text == "Удалить", AdminFilter())
 async def blacklist_del(message: Message, state: FSMContext, session: AsyncSession):
     """
     Хэндлер для удаления пользователя из черного списка
@@ -111,7 +110,7 @@ async def send_random_value(callback: CallbackQuery, callback_data: DelBlacklist
     )
 
 
-@router.message(Text(text="Добавить рейс", ignore_case=True), AdminFilter())
+@router.message(F.text == "Добавить рейс", AdminFilter())
 async def courier_start(message: Message, state: FSMContext):
     """
     Хэндлер для добавления карточки курьера администратором
@@ -298,7 +297,7 @@ async def info(message: Message, state: FSMContext):
         await message.answer('Неправильный формат, используйте только русские или латинские буквы.')
 
 
-@router.message(AdminStates.validate, Text(text="Все правильно", ignore_case=True))
+@router.message(AdminStates.validate, F.text =="Все правильно")
 async def write_db(message: Message, state: FSMContext, session: AsyncSession, bot: Bot):
     """
     Хэндлер для записи полученных данных из хранилища в базу данных, а также создания поста в канале
