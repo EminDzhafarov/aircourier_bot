@@ -1,6 +1,5 @@
-from aiogram import Router
+from aiogram import Router, F
 from aiogram.filters.command import Command, CommandObject
-from aiogram.filters.text import Text
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from db.crud import get_id_from_link, add_to_stat, is_new_user
@@ -63,7 +62,7 @@ async def cmd_start(
     await state.set_state(StartStates.start)
 
 
-@router.message(Text(text="В начало", ignore_case=True), BlacklistFilter(), FlightsFilter())
+@router.message(F.text == "В начало", BlacklistFilter(), FlightsFilter())
 async def begin(message: Message, flights: bool, state: FSMContext) -> None:
     """
     Хэндлер для возврата в главное меню при нажатии кнопки "В начало" на клавиатуре
