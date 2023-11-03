@@ -1,5 +1,4 @@
-from aiogram import Router
-from aiogram.filters.text import Text
+from aiogram import Router, F
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,8 +13,8 @@ from keyboards.inline import send_msg
 router = Router()
 
 
-@router.message(Text(text="Новый поиск", ignore_case=True), BlacklistFilter())
-@router.message(Text(text="📦 Хочу отправить", ignore_case=True), BlacklistFilter())
+@router.message(F.text == "Новый поиск", BlacklistFilter())
+@router.message(F.text == "📦 Хочу отправить", BlacklistFilter())
 async def answer_yes(message: Message, state: FSMContext):
     """
     Хэндлер для запроса страны вылета курьера
