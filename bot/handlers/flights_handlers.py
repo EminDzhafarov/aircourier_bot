@@ -1,5 +1,4 @@
 from aiogram import Router
-from aiogram.filters.text import Text
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram import F
@@ -13,7 +12,7 @@ from keyboards.inline import del_flight, DelFlight
 router = Router()
 
 
-@router.message(Text(text="📋 Мои перелеты", ignore_case=True), BlacklistFilter())
+@router.message(F.text == "📋 Мои перелеты", BlacklistFilter())
 async def my_flights(message: Message, state: FSMContext, session: AsyncSession):
     """
     Хэндлер для получения списка перелетов пользователя по user_id
