@@ -1,5 +1,4 @@
-from aiogram import Router, Bot
-from aiogram.filters.text import Text
+from aiogram import Router, Bot, F
 from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,8 +18,8 @@ import os
 router = Router()
 
 
-@router.message(Text(text="✈️ Хочу доставить", ignore_case=True), BlacklistFilter())
-@router.message(Text(text="Начать заново", ignore_case=True), BlacklistFilter())
+@router.message(F.text == "✈️ Хочу доставить", BlacklistFilter())
+@router.message(F.text == "Начать заново", BlacklistFilter())
 async def courier_start(message: Message, state: FSMContext):
     """
     Хэндлер для запроса имени
@@ -208,7 +207,7 @@ async def info(message: Message, state: FSMContext):
         await message.answer('Неправильный формат, используйте только русские или латинские буквы.')
 
 
-@router.message(CourierStates.validate, Text(text="Все правильно", ignore_case=True))
+@router.message(CourierStates.validate, F.text == "Все правильно")
 async def write_db(message: Message, state: FSMContext, session: AsyncSession, bot: Bot):
     """
     Хэндлер для записи полученных данных из хранилища в базу данных, а также создания поста в канале
